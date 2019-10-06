@@ -49,7 +49,7 @@ function rul = catchBall(agent, B)
                 rotRul = RotateToLinear(agent, B.z, 2, 20, 0.05);
             end
             rul = MoveToPD(agent, point, 25, 4/750, -1.5, 25); 
-            rul.sound = rotRul.sound;
+            rul.SpeedR = rotRul.SpeedR;
         else
             rul = Crul(0, 0, 0, 0, 0);
         end

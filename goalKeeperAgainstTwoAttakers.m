@@ -186,16 +186,16 @@ end
 
 function res = checkGameZone(X, Y)
     minX = 0;
-    maxX = 1850;
-    minY = -1150;
-    maxY = 1150;
+    maxX = 4500;
+    minY = -1450;
+    maxY = 1450;
     
     res = belongSeg(X, minX, maxX) && belongSeg(Y, minY, maxY);
 end
 
 function res = checkGKZone(X, Y)
-    minX = 75;
-    maxX = 500;
+    minX = 4000;
+    maxX = 4500;
     minY = -600;
     maxY = 600;
     
@@ -203,18 +203,18 @@ function res = checkGKZone(X, Y)
 end
 
 function res = checkA1Zone(X, Y)
-    minX = 75;
-    maxX = 1850;
+    minX = 0;
+    maxX = 4500;
     minY = 0;
-    maxY = 1150;
+    maxY = 1450;
     
     res = belongSeg(X, minX, maxX) && belongSeg(Y, minY, maxY);
 end
 
 function res = checkA2Zone(X, Y)
-    minX = 75;
-    maxX = 1850;
-    minY = -1150;
+    minX = 0;
+    maxX = 4500;
+    minY = -1450;
     maxY = 0;
     
     res = belongSeg(X, minX, maxX) && belongSeg(Y, minY, maxY);

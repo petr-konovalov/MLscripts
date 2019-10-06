@@ -99,6 +99,9 @@ function t = getOccupiedSegments(A, B, O, Q, R)
     v = B - O;
     AB = B - A;
     for j = 1: size(Q, 1)
+%         disp(O);
+%         disp(Q(j, :));
+%         disp(R);
         pnts = GetTangentPoints(O(1), O(2), Q(j, 1), Q(j, 2), R);
         intOA = numel(SegmentCircleIntersect(O(1), O(2), A(1), A(2), Q(j, 1), Q(j, 2), R)) > 0;
         intOB = numel(SegmentCircleIntersect(O(1), O(2), B(1), B(2), Q(j, 1), Q(j, 2), R)) > 0;

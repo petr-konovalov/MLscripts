@@ -4,14 +4,14 @@ function rul = moveWithBall(agent, ball, aim)
             rul = MoveToWithRotation(agent, ball.z, ball.z, 1/1000, 20, 0, 2, 20, 0, 0, 0.1, false);
         else
             error_ang = errorAng(agent.z, ball.z, aim); 
-            if (isState2(agent.z, ball.z, aim))
-                rul = goAroundPoint(agent, ball.z, 120, 1000 * sign(error_ang), 5, 25 + 5 * abs(error_ang)); 
+            if (isState2(agent.z, ball.z, aim) && ~agent.isBallInside)
+                rul = goAroundPoint(agent, ball.z, 80, 1000 * sign(error_ang), 5, 25 + 5 * abs(error_ang)); 
             else
-                rul = MoveToWithRotation(agent, aim, aim, 1/3000, 10, 200, 3, 15, 0, 0, 0.05, false);
+                rul = MoveToWithRotation(agent, aim, aim, 0, 40, 200, 3, 15, 0, 0, 0.05, false);
             end
         end
     else
-        rul = MoveToWithRotation(agent, aim, aim, 1/3000, 10, 200, 3, 15, 0, 0, 0.05, false);
+        rul = MoveToWithRotation(agent, aim, aim, 0, 40, 200, 3, 15, 0, 0, 0.05, false);
     end
 end
 

@@ -15,7 +15,8 @@ function rul = receiveBall(agent, BPosHX, BPosHY)
 
         rotRul = RotateToLinear(agent, [BPosHX(lastItem), BPosHY(lastItem)], 2, 20, 0.05);
         rul = MoveToPD(agent, point, 25, 4/750, -1.5, 25); 
-        rul.sound = rotRul.sound;
+        %rul = MoveToWithFBPPlusParam(agent, point, 25, obstacles);
+        rul.SpeedR = rotRul.SpeedR;
     else
         rul = Crul(0, 0, 0, 0, 0);
     end

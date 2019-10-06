@@ -1,42 +1,50 @@
-function [frul, srul] = STPGame2by2FirstCom(ball, BPosHX, BPosHY, ballFastMoving, ballSaveDir, own, opp, ownG, oppG, ownV, oppV, ballInside)
+function [frul, srul] = STPGame2by2FirstCom(ball, BPosHX, BPosHY, ballFastMoving, ballSaveDir, ballStanding, ballSpeed, own, opp, ownG, oppG, ownV, oppV)
     frul = Crul(0, 0, 0, 0, 0);
     srul = Crul(0, 0, 0, 0, 0);
     [ownerCmd, ownerId] = getBallOwner(ballFastMoving, ballSaveDir, ball, own, opp, ownG, oppG);
     
     switch ownerCmd
         case 1
-            [frul, srul] = attackGame(ownerId, ballFastMoving, ball, own, opp, ownG, oppG, ownV, oppV, ballInside);
+            %disp('FAttackGame');
+            [frul, srul] = attackGame(ownerId, ballFastMoving, ballStanding, ballSpeed, BPosHX, BPosHY, ball, own, opp, ownG, oppG, ownV, oppV);
         case 2
-            [frul, srul] = defenceGame(ownerId, ballFastMoving, BPosHX, BPosHY, ball, own, opp, ownG, oppG, ownV, oppV, ballInside);
+            %disp('FdefenceGame');
+            [frul, srul] = defenceGame(ballFastMoving, ballStanding, ballSpeed, BPosHX, BPosHY, own, opp, ownG, ownV);
         case -1
-            [frul, srul] = neutralGame(ball, own, opp, ownG, oppG, ownV, oppV, ballInside);
+            %disp('FneutralGame');
+            [frul, srul] = neutralGame(ball, ballStanding, ballSpeed, BPosHX, BPosHY, own, opp, ownG, oppG, ownV, oppV);
     end
 end
 
-function [frul, srul] = attackGame(ownerId, ballFastMoving, ball, own, opp, ownG, oppG, ownV, oppV, ballInside)
-    frul = GoalKeeperOnLine(own(1), ball, ownG, ownV);
+function [frul, srul] = attackGame(ownerId, ballFastMoving, ballStanding, ballSpeed, BPosHX, BPosHY, ball, own, opp, ownG, oppG, ownV, oppV)
+    frul = GoalKeeperOnLine(own(1), ownG, ownV, BPosHX, BPosHY, ballStanding, ballSpeed);
     srul = Crul(0, 0, 0, 0, 0);
     
+    %disp('f');
     if (ownerId == 2)
+        %disp('f1');
         if ~ballFastMoving
-            srul = optDirGoalAttack(own(2), ball, opp, oppG, oppV, ballInside);
+            srul = optDirGoalAttack(own(2), ball, opp, oppG, oppV);
         end
     else
+        %disp('f2');
         if ~ballFastMoving
-            minSpeed = 15;
-            P = 4/750;
-            D = -1.5;
+            minSpeed = 50;
+            %P = 4/750;
+            %D = -1.5;
             vicinity = 50;
-            frul = attackDistCrit(own(1), ball, (ownG + oppG) / 2, ballInside);
-            srul = MoveToPD(own(2), (ownG + oppG) / 2, minSpeed, P, D, vicinity);
+            %frul = distAttack(own(1), ball, (ownG + oppG) / 2, own(1).isBallInside);
+            frul = attack(own(1), ball, (ownG + oppG) / 2);
+            srul = MoveToPD(own(2), (ownG +  oppG)/2, minSpeed, 0, 0, vicinity);
         else
-            srul = attack(own(1), ball, (ownG + oppG) / 2, ballInside);
+            %srul = distAttack(own(1), ball, (ownG + oppG) / 2, own(1).isBallInside);
+            srul = receiveBall(own(2), BPosHX, BPosHY);%attack(own(1), ball, (ownG + oppG) / 2);
         end
     end
 end
 
-function [frul, srul] = defenceGame(ownerId, ballFastMoving, BPosHX, BPosHY, ball, own, opp, ownG, oppG, ownV, oppV, ballInside)
-    frul = GoalKeeperOnLine(own(1), ball, ownG, ownV);
+function [frul, srul] = defenceGame(ballFastMoving, ballStanding, ballSpeed, BPosHX, BPosHY, own, opp, ownG, ownV)
+    frul = GoalKeeperOnLine(own(1), ownG, ownV, BPosHX, BPosHY, ballStanding, ballSpeed);
     if ~ballFastMoving
         srul = defenceGoalFor2by2(own(2), opp(2), ownG);
     else
@@ -44,9 +52,10 @@ function [frul, srul] = defenceGame(ownerId, ballFastMoving, BPosHX, BPosHY, bal
     end
 end
 
-function [frul, srul] = neutralGame(ball, own, opp, ownG, oppG, ownV, oppV, ballInside)
-    frul = GoalKeeperOnLine(own(1), ball, ownG, ownV);
-    srul = optDirGoalAttack(own(2), ball, opp, oppG, oppV, ballInside);
+function [frul, srul] = neutralGame(ball, ballStanding, ballSpeed, BPosHX, BPosHY, own, opp, ownG, oppG, ownV, oppV)
+    frul = GoalKeeperOnLine(own(1), ownG, ownV, BPosHX, BPosHY, ballStanding, ballSpeed);
+    srul = optDirGoalAttack(own(2), ball, opp, oppG, oppV);
+    %srul = defenceGoalFor2by2(own(2), opp(2), ownG);
 end
 
 function [cmd, id] = getBallOwner(ballFastMoving, ballSaveDir, ball, own, opp, ownG, oppG)
@@ -151,7 +160,7 @@ function [cmd, id] = getOwnerWhenBallSlow(ball, own, opp, ownG, oppG)
 end
 
 function res = checkGoalKeeperZone(ball, G)
-    goalKeeperArea = 900;
+    goalKeeperArea = 500;
     res = r_dist_points(ball.z, G) < goalKeeperArea;
 end
 

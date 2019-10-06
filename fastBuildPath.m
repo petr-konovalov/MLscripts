@@ -1,7 +1,8 @@
 function path = fastBuildPath(S, F, obstacles, step, recDepth)
     import java.util.LinkedList;
     maxRecDepth = 20;
-    
+    %disp(recDepth);
+    %disp([S, F]);    
     path = LinkedList();
     if (recDepth <= maxRecDepth)
         obst = getNearestObstaclesOnPath(S, F, obstacles);

@@ -1,6 +1,6 @@
 function rul = MoveToWithFastBuildPath(agent, aimPoint, aimVicinity, obstacles)
     step = 80;
-    NormalSpeed = 50;
+    NormalSpeed = 60;
     infinity = 1000000;
     minSpeed = 10;
     minMovement = 100;
@@ -30,6 +30,12 @@ function rul = MoveToWithFastBuildPath(agent, aimPoint, aimVicinity, obstacles)
         % строитс€ два пути (обход€т пр€п€тсви€ с различных сторон)
         firstPath = fastBuildPath(agentPos, aimPoint, obstacles, -step, 0);
         secondPath = fastBuildPath(agentPos, aimPoint, obstacles, step, 0);
+        if firstPath.size() > 2
+            firstPath = pathOptimize(firstPath, obstacles);
+        end
+        if secondPath.size() > 2
+            secondPath = pathOptimize(secondPath, obstacles);
+        end
         
         firstLength = 0;
         if (~firstPath.isEmpty())

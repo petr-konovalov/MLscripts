@@ -1,27 +1,33 @@
 %отакует ворота в оптимально направлении 
 %(в модели где скорость мяча и роботов постоянны)
-function [rul] = optDirGoalAttack(agent, ball, oppCom, G, V, ballInside)
-    v = 400;            %размер ворот
+function [rul] = optDirGoalAttack(agent, ball, oppCom, G, V)
+    v = 300;            %размер ворот
     R = 130;            %радиус робота
     K = 2;              %скорость мяча делённая на скорость робота
+    ballOccupied = false;
     
     oppPos = zeros(numel(oppCom), 2);
     for k = 1: numel(oppCom)
         oppPos(k, 1) = oppCom(k).x;
         oppPos(k, 2) = oppCom(k).y;
+        ballOccupied = ballOccupied || r_dist_points(oppPos(k, :), ball.z) <= R;
     end
     
-    nV = [V(2), -V(1)];
-    [optDir, optScore] = getOptimalDirect(G - nV * v, G + nV * v, ball.z, oppPos, R, K);
-    %проверяем определено ли оптимальное направление
-    if abs(optDir(1)) + abs(optDir(2)) > 0
-        rul = attackOptDir(agent, ball, oppPos, G, R, nV, v, optDir, optScore, K, ballInside);
+    if ballOccupied
+        rul = MoveToLinear(agent, ball.z, 0, 25, 50);
     else
-        rul = Crul(0, 0, 0, 0, 0);
+        nV = [V(2), -V(1)];
+        [optDir, optScore] = getOptimalDirect(G - nV * v, G + nV * v, ball.z, oppPos, R, K);
+        %проверяем определено ли оптимальное направление
+        if abs(optDir(1)) + abs(optDir(2)) > 0
+            rul = attackOptDir(agent, ball, oppPos, G, R, nV, v, optDir, optScore, K);
+        else
+            rul = MoveToLinear(agent, ball.z, 0, 25, 50);
+        end
     end
 end
 
-function rul = attackOptDir(agent, ball, oppPos, G, R, nV, v, optDir, optScore, K, ballInside)
+function rul = attackOptDir(agent, ball, oppPos, G, R, nV, v, optDir, optScore, K)
     persistent takeDir; %выбранное направление
     inf = 100000;       %бесконечность (нужна для моделирования лучей)
     hyst = 200;         %hysteresys нужен для того чтобы избежать скачки между соседнимим кадрами
@@ -40,7 +46,8 @@ function rul = attackOptDir(agent, ball, oppPos, G, R, nV, v, optDir, optScore, 
         end
     end
     
-    rul = attack(agent, ball, ball.z + coef * takeDir, ballInside);
+    %rul = distAttack(agent, ball, ball.z + coef * takeDir, ballInside);
+    rul = attack(agent, ball, ball.z + coef * takeDir);
 end
 
 %проверяет нет ли на AB противников и пересекает ли он ворота

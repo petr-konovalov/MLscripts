@@ -9,8 +9,8 @@ function [Speed] = MoveTo(agent, aimPoint, SpeedFunction)
     v = v / dist;
     
     SpeedAbs = SpeedFunction(dist);        %absolute value of speed
-    SpeedX = v(2)*u(1)-v(1)*u(2);          %speed on axis X 
-    SpeedY = v(1)*u(1)+v(2)*u(2);          %speed on axis Y
+    SpeedY = -v(2)*u(1)+v(1)*u(2);          %speed on axis X 
+    SpeedX = +v(1)*u(1)+v(2)*u(2);          %speed on axis Y
     
         %disp(dist);
     Speed = [SpeedAbs*SpeedX, SpeedAbs*SpeedY];

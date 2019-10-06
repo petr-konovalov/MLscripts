@@ -5,4 +5,5 @@ function [rul] = defenceGoalFor2by2(agent, oppAttacker, G)
     vicinity = 50;
     
     rul = MoveToPD(agent, (oppAttacker.z + G) / 2, minSpeed, P, D, vicinity);
+    %rul = MoveToWithFBPPlusParam(agent, (oppAttacker.z + G) / 2, vicinity, obstacles);
 end
