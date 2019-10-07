@@ -1,35 +1,35 @@
 %move to sliding mode
 %agent - robot information structure
-%w     - robot acceleration
+%ac    - robot acceleration
+%sr    - отношение ральной скорости робота (в м/с) к скорости в программе
 %Здесь важно чтобы единицы измерения были согласованными
-function rul = MoveToSM(agent, w, aimPoint, Vmax, vicinity)
+function rul = MoveToSM(agent, ac, sr, aimPoint, vicinity)
+    %dist  - расстояние в метрах
+    %Speed - модуль скорости в метрах в секунду 
     function [Speed] = SMSpeedFunction(dist)
         persistent oldT;
         persistent v;
         curT = cputime();
         if isempty(oldT)
-            oldT = curT;
+            oldT = ones(1, 8) * curT;
         end
         if isempty(v)
-            v = 0;
+            v = zeros(1, 8);
         end
-        dT = curT - oldT;
+        dT = curT - oldT(agent.id);
         
         if dist < vicinity
             Speed = 0;
-        % формула ниже не работает из-за того, что v w в попугаях a dist в
-        % миллиметрах
-        elseif v ^ 2 <= 2 * w * dist
-            Speed = min(v + dT * w, Vmax);
+        elseif v(agent.id) ^ 2 <= 2 * ac * dist
+            Speed = min(v(agent.id) + dT * ac, 100 * sr);
         else
-            Speed = max(v - dT * w, 0);
+            Speed = max(v(agent.id) - dT * ac, 0);
         end
         
-        disp(v);
-        v = Speed;
-        oldT = curT;
+        v(agent.id) = Speed;
+        oldT(agent.id) = curT;
     end
     
-    Speed = MoveTo(agent, aimPoint, @SMSpeedFunction);
+    Speed = MoveTo(agent, aimPoint, @(dist)(SMSpeedFunction(dist / 1000) / sr));
     rul = Crul(Speed(1), Speed(2), 0, 0, 0);
 end

@@ -103,17 +103,43 @@ end
 %{
     Здесь всё пропало потомучто, это ветка new_moveToPoint
 %}
-w = 250;
+ac  = 3;    %ускорение робота
+sr = 0.02; %отношение ральной скорости робота (в м/с) к скорости в программе
+%Все коэффициенты взяты с запасом и могут не соответствовать
+%действительности
+
+global timer rPos;
+aId = 5; %agent id
+
+if isempty(timer)
+    timer = 0;
+end
+
+if isempty(rPos)
+    rPos = RP.Blue(4).z;
+end
+
 switch activeAlgorithm
     case 0
         for k = BlueIDs
             RP.Blue(k).rul = Crul(0, 0, 0, 0, 0);
         end
     case 1
-        RP.Blue(4).rul = MoveToSM(RP.Blue(4), w, G2, 100, 100);
-        %RP.Blue(4).rul = Crul(25, 0, 0, 0, 0);
+        RP.Blue(aId).rul = MoveToSM(RP.Blue(aId), ac, sr, G2, 0.05);
+        %RP.Blue(aId).rul = Crul(25, 0, 0, 0, 0);
     case 2
-        RP.Blue(4).rul = MoveToSM(RP.Blue(4), w, G1, 100, 100);
+        RP.Blue(aId).rul = MoveToSM(RP.Blue(aId), ac, sr, G1, 0.05);
+    case 3
+        RP.Blue(aId).rul = Crul(30, 0, 0, 0, 0);
+    case 4
+        dT = cputime() - timer; %time interval (seconds)
+        if dT > 0.3
+            Vel = (rPos - RP.Blue(aId).z) / dT;
+        end
+        timer = cputime();
+        rPos = RP.Blue(aId).z;
+    case 5
+        disp(norm(Vel));
 end
 
 %% END CONTRIL BLOCK
