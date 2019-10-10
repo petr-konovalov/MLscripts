@@ -10,6 +10,30 @@
 % Function place control signals to special structure ready for copying
 % to robot structure.
 % RP.Blue[N].rul = rul
+
+
+%(SpeedX, SpeedY) - VECTOR SKOROSTI ROBOTA ZADAVAEMIY V SISTEME COORDINAT SVAZANNOY S ROBOTOM (CENTR ETOY SISTEMY SOVPADAET S CENTROM ROBOTA ODNA IZ OSEY SOVPADAET S OSY SIMMETRII ROBOTA), PRI ETOM 0 <= SpeedX <= 100, 0 <= SpeedY <= 100
+
+%KickForward = 1 ESLY HOTIM UDARIT PO PRYAMOY 0 INACHE
+
+%SpeedR - SKOROCT VRASHENIYA ROBOTA
+
+%KickUp = 1 ESLY HOTIM UDARIT PODKINUV MYACH 0 INACHE
+
+%AutoKick = 1 ESLY HOTIM CHTOBI ROBOT OTBIL PO PRAMOY KAK TOLKO ZADEL MYACH
+%         = 2 TOZHE SAMOYE TOLKO UDAR NAVESOM
+%         = 0 INACHE
+
+%KickVoltage - ZADAYOT MOCHNOST UDARA
+
+%EnableSpinner, SpennerSpeed - NE TROGAEM, UPRAVLYAET DRIBLEROM
+
+%KickerCharge = 1 ESLY HOTIM CHTOBI KICKER ZARYAZHALSYA
+%             = 0 INACHE
+
+%Beep = 1 ESLY HOTIM CHTOBI ROBOT PILIKAL 0 INACHE
+
+
 function rul = Crul(SpeedX, SpeedY, KickForward, SpeedR, KickUp, AutoKick, KickVoltage, EnableSpinner, SpinnerSpeed, KickerCharge, Beep)
 
 % defSpeedX = 0;
@@ -62,6 +86,10 @@ end
 if sum(isinf([SpeedY, SpeedX, KickForward, SpeedR, KickUp, AutoKick, KickVoltage, EnableSpinner, SpinnerSpeed, KickerCharge, Beep])>0)
     warning('Crul : some element is inf');
 end
+
+
+%OPISANIYE STRUCDTURI RUL
+
 rul = struct();
 rul.SpeedR = SpeedR;
 rul.KickUp = KickUp;

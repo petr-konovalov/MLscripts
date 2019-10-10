@@ -1,3 +1,6 @@
+%ISPOLZUETSYA DLYA ZAPUSKA I OSTANOVKI
+
+
 %PAUSE
 %Создаёт и отменяет паузу 
 %Во время паузы Rule не передаёт данные
