@@ -1,4 +1,11 @@
+%agent - structure of robot state
+%ball - structure of ball state
+%aim - destination point for ball
+
 function rul = attack(agent, ball, aim)
+    %agent.z - robot position
+    %ball.z - ball position
+
     if (isState1(agent.z, ball.z) && ball.I)
         rul = MoveToWithRotation(agent, ball.z, ball.z, 1/1000, 20, 0, 2, 20, 0, 0, 0.1, false);
     else
