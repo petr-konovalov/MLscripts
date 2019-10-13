@@ -43,12 +43,12 @@ coef = 1/1000; %coefficient of P-controller
 minV = 25;     %robot minimal travel speed
 vicinity = 50; %neighborhood size of the target point at which the robot will stop
 
-%RP.Blue(id) - robot information structure
+%RP.Blue(id) - robot 
 %RP.Blue(id).rul - robot controll structure
 
 %MoveToLinear calculate the velocity vector nessary for the robot to move
-%from its current positoin to destination point, wherein the speed magnitude
-%have linearly depends on the distance
+%from its current positoin to destination point, while the speed magnitude
+%have linearly depends on the distance from 
 RP.Blue(id).rul = MoveToLinear(RP.Blue(id), aimP, coef, minV, vicinity);
 
 %% END CONTRIL BLOCK

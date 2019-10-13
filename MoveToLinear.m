@@ -1,4 +1,8 @@
-%agent - robot info
+%MoveToLinear calculate the velocity vector nessary for the robot to move
+%from its current positoin to destination point, wherein the speed magnitude
+%have linearly depends on the distance
+
+%agent - robot information structure
 %aimPoint - point to which robot is moving
 %coef - linear velocity coefficient
 %minSpeed - minimal speed
