@@ -143,11 +143,11 @@ switch activeAlgorithm
             RP.Blue(k).rul = Crul(0, 0, 0, 0, 0);
         end
     case 1
-        %aId = 5;
-        %RP.Blue(aId).rul = Crul(0, 0, 0, 20, 0);%RotateToPD(RP.Blue(aId), RP.Ball.z, 15, 0, 0, 0.1);
-        for k = BlueIDs
-            RP.Blue(k).rul = Crul(0, 0, 0, 10, 0);
-        end
+        aId = 3;
+        RP.Blue(aId).rul = RotateToPD(RP.Blue(aId), RP.Ball.z, 3, 20, -2, 0.07);
+%         for k = BlueIDs
+%             RP.Blue(k).rul = Crul(0, 0, 0, 10, 0);
+%         end
     case 2    
         minX = -3200;
         maxX = 0;
