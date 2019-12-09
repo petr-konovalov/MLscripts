@@ -151,7 +151,7 @@ switch activeAlgorithm
             RP.Blue(5).rul = attack(RP.Blue(5), RP.Ball, G1);
             %RP.Blue(5).rul.KickVoltage = 12;
         else
-            RP.Blue(5).rul = MoveToLinear(RP.Blue(5), G1 + [0, 1000], 0, 40, 100);
+            RP.Blue(5).rul = MoveToLinear(RP.Blue(5), G1 + [-1000, 0], 0, 40, 100);
         end
         if r_dist_points(G2, RP.Ball.z) < 1000
             RP.Blue(1).rul = attack(RP.Blue(1), RP.Ball, G2);
