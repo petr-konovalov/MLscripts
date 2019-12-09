@@ -27,6 +27,7 @@ function [BState, BPosHX, BPosHY, BPEstim] = ballMovingManager(B)
     
     if (B.I ~= 0)
         if (T(hLen) ~= curTime && (B.x ~= hX(hLen) || B.y ~= hY(hLen))) %check for new data
+            %fprintf('%.2f %.2f\n', B.x, B.y);
             for i = 1: hLen - 1
                 hX(i) = hX(i + 1);
                 hY(i) = hY(i + 1);
@@ -43,7 +44,7 @@ function [BState, BPosHX, BPosHY, BPEstim] = ballMovingManager(B)
         BPEstim = B.z;
     else
         %prediction model
-        BPEstim = ballNotRecognizedCase(curTime - T(hLen), [hX(hLen), hY(hLen)], oldBState);
+        BPEstim = ballNotRecognizedCase(curTime - T hX, hY, hLen, oldBState);
         BState = oldBState;
     end
     oldBState = BState;
@@ -75,9 +76,11 @@ function BState = ballRecognizedCase(B, T, hX, hY, hLen, hStepBallSpeed, hStepSa
 end
 
 function BPEstim = ballNotRecognizedCase(dT, lastRecognizedBP, oldBState)
+    %prediction model
     if oldBState.ballStanding
-        BPEstim = lastRecognizedBP; 
+        BPEstim = lastRecognizedBP; %last recognized point
     else
+        %(last recognized point) + (last estimated speed) * time
         BPEstim = lastRecognizedBP + oldBState.BSpeed * dT; 
     end
 end

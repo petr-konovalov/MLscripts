@@ -1,6 +1,6 @@
 function rul = MoveToWithFBPPlusParam(agent, aimPoint, aimVicinity, obstacles)
     step = 100;
-    NormalSpeed = 50;
+    NormalSpeed = 30;
     infinity = 1000000;
     minSpeed = 10;
     minMovement = 100;

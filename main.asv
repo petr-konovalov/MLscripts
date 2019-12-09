@@ -138,26 +138,22 @@ end
 %----------------------------------------------------
 
 switch activeAlgorithm
-    case -2 %Test ball moving manager on record
-        [BState, BPosHX, BPosHY, BPEstim] = ballMovingManager(RP.Ball);
+    case -1 %Test ball moving manager
+        [BState, BPosHX, BPosHY] = ballMovingManager(RP.Ball);
         fprintf('BF:%3d    BS:%3d    SD:%3d    S:   [%d, %d]', BState.BFast, BState.BStand, BState.saveDir, BState.BSpeed(1), BState.BSpeed(2));
-    case -1 %Test ball moving manager on real robots
-        [BState, BPosHX, BPosHY, BPEstim] = ballMovingManager(RP.Ball);
-        fprintf('BF:%3d    BS:%3d    SD:%3d    S:   [%d, %d]', BState.BFast, BState.BStand, BState.saveDir, BState.BSpeed(1), BState.BSpeed(2));
-        G1 = [-0.2924   -1.1207] * 1000;
-        G2 = [-3.1655   -1.1475] * 1000;
-        B.z = BPEstim;
-        if r_dist_points(G1, RP.Ball.z) < 1000
-            RP.Blue(5).rul = attack(RP.Blue(5), RP.Ball, G1);
-            %RP.Blue(5).rul.KickVoltage = 12;
-        else
-            RP.Blue(5).rul = MoveToLinear(RP.Blue(5), G1 + [0, 1000], 0, 40, 100);
-        end
-        if r_dist_points(G2, RP.Ball.z) < 1000
+        G1 = [-0.2805   -1.1278] * 1000;
+        G2 = [-3.1429   -1.1252] * 1000;
+        
+        if r_dist_points(G1, RP.Ball.z) < 1500
+            RP.Blue(1).rul.
             RP.Blue(1).rul = attack(RP.Blue(1), RP.Ball, G2);
-            %RP.Blue(1).rul.KickVoltage = 15;
         else
-            RP.Blue(1).rul = MoveToLinear(RP.Blue(1), G2 + [0, 1000], 0, 40, 100);
+            RP.Blue(1).rul = MoveToLinear(RP.Blue(1), G1 + [0, 1000], 0, 30, 100);
+        end
+        if r_dist_points(G2, RP.Ball.z) < 1500
+            RP.Blue(4).rul = attack(RP.Blue(4), RP.Ball, G1);
+        else
+            RP.Blue(4).rul = MoveToLinear(RP.Blue(4), G2 + [0, 1000], 0, 30, 100);
         end
     case 0
         aimPoint = RP.Ball.z;
