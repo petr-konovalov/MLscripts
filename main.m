@@ -146,7 +146,7 @@ switch activeAlgorithm
         fprintf('BF:%3d    BS:%3d    SD:%3d    S:   [%d, %d]', BState.BFast, BState.BStand, BState.saveDir, BState.BSpeed(1), BState.BSpeed(2));
         G1 = [-0.2924   -1.1207] * 1000;
         G2 = [-3.1655   -1.1475] * 1000;
-        B.z = BPEstim;
+        RP.Ball.z = BPEstim;
         if r_dist_points(G1, RP.Ball.z) < 1000
             RP.Blue(5).rul = attack(RP.Blue(5), RP.Ball, G1);
             %RP.Blue(5).rul.KickVoltage = 12;

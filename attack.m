@@ -1,5 +1,5 @@
 function rul = attack(agent, ball, aim)
-    if (isState1(agent.z, ball.z) && ball.I)
+    if (isState1(agent.z, ball.z) && ~agent.isBallInside)
         rul = MoveToWithRotation(agent, ball.z, ball.z, 1/1000, 20, 0, 2, 20, 0, 0, 0.1, false);
     else
         error_ang = errorAng(agent.z, ball.z, aim); 

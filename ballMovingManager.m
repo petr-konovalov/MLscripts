@@ -75,7 +75,7 @@ function BState = ballRecognizedCase(B, T, hX, hY, hLen, hStepBallSpeed, hStepSa
 end
 
 function BPEstim = ballNotRecognizedCase(dT, lastRecognizedBP, oldBState)
-    if oldBState.ballStanding
+    if oldBState.BStand
         BPEstim = lastRecognizedBP; 
     else
         BPEstim = lastRecognizedBP + oldBState.BSpeed * dT; 
