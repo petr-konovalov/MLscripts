@@ -73,8 +73,8 @@ if isempty(obstacles) || size(obstacles, 1) ~= commonSize
     obstacles = zeros(commonSize, 3);
 end
         
-radius = 220;
-eps = 30;
+radius = 200;
+eps = 10;
 
 BCnt = numel(BlueIDs);
 for k = 1: BCnt;
@@ -165,14 +165,14 @@ switch activeAlgorithm
         agent = RP.Blue(5);
         RP.Blue(5).rul = MoveToWithFastBuildPath(agent, aimPoint, aimVicinity, obstacles([1: 4, 6], :));
     case 1
-        Pos = [-3750 + 500, -2000 + 100];
-        Vec = [0, 350];
+        %One camera field parameters
+        LeftBottom = [-3.4867   -2.2538] * 1000;
+        RightTop = [-125.6602  170.6299];
+        LeftGoal = [-3.3474   -1.0248] * 1000;
+        RightGoal = [-0.2614   -1.0371] * 1000;
+        [BState, BPosHX, BPosHY, BPEstim] = ballMovingManager(RP.Ball);
         
-        for id = 1: 6
-            aimPoint = Pos + Vec * (id - 1);
-            vicinity = 50;
-            RP.Blue(id).rul = MoveToWithFBPPlusParam(RP.Blue(id), aimPoint, vicinity, obstacles([1:id-1, id+1:BCnt], :));
-        end
+        RP.Blue(1).rul = stealBall(RP.Blue(1), BPEstim, RP.Blue(2), obstacles([2, 3, 5], :));
     case 2
         %---------------HISTORY MANAGER-----------------
 %         

@@ -1,6 +1,6 @@
 function rul = MoveToWithFastBuildPath(agent, aimPoint, aimVicinity, obstacles)
     step = 80;
-    NormalSpeed = 60;
+    NormalSpeed = 40;
     infinity = 1000000;
     minSpeed = 10;
     minMovement = 100;
