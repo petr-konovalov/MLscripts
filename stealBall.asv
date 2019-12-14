@@ -1,7 +1,7 @@
 function rul = stealBall(agent, BPEstim, ballOwner, obstacles)
     bigDist = 160;
     smallDist = 110;
-    takeWidth = 100;
+    takeWidth = 50;
     persistent pushDir;
     persistent spinSpeed;
     if (isempty(pushDir))
@@ -18,25 +18,19 @@ function rul = stealBall(agent, BPEstim, ballOwner, obstacles)
         rul = MoveToWithFastBuildPath(agent, pnt, 0, obstacles);
         rotRul = RotateToLinear(agent, BPEstim, 3, 10, 0.1);
         rul.SpeedR = rotRul.SpeedR;
-    elseif inHalfStrip(ballOwner.z, agent.z, agentDir, takeWidth) || r_dist_points(BPEstim, ballOwner.z) < smallDist 
+    elseif ~agent.isBallInside
+        rul = MoveToLinear(agent, BPEstim, 0, 15, 0);
+        rotRul = RotateToLinear(agent, BPEstim, 3, 10, 0.1);
+        rul.SpeedR = rotRul.SpeedR;
+    elseif inHalfStrip(ballOwner.z, agent.z, agentDir, takeWidth)
         %change pushing direction
-        if ~agent.isBallInside
-            rul = MoveToLinear(agent, BPEstim, 0, 15, 0);
-            rotRul = RotateToLinear(agent, BPEstim, 3, 10, 0.1);
-            rul.SpeedR = rotRul.SpeedR;
-        else
-            if randi(100) > 80
-                pushDir(agent.id) = -1 - pushDir(agent.id);
-                spinSpeed(agent.id) = randi(10) + 10;
-            end
-            rul = Crul(10, 10 * pushDir(agent.id), 0, spinSpeed(agent.id) * pushDir(agent.id), 0);
+        if randi(100) > 80
+            pushDir(agent.id) = -1 - pushDir(agent.id);
+            spinSpeed(agent.id) = randi(10) + 10;
         end
-    else
-        %Здесь надо будет добавить проверку:
-        %Если нет опасности выпнуть из поля или по своим воротам, то пинаем
-        %rul = Crul(0, 0, 0, 0, 1);
-        %Иначе просто фигачим вперёд (хотя, на самом деле)
-        rul = Crul(40, 0, 0, 0, 0);
+        rul = Crul(10, 10 * pushDir(agent.id), 0, spinSpeed(agent.id) * pushDir(agent.id), 0);
+    else 
+        rul = 
     end
 end
 

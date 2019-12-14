@@ -138,6 +138,18 @@ end
 %----------------------------------------------------
 
 switch activeAlgorithm
+    case -4 %reset robot position
+        G1 = [-0.2924   -1.1207] * 1000;
+        G2 = [-3.1655   -1.1475] * 1000;
+        P2 = G2 + (G1 - G2) / 3;
+        P1 = G2 + (G1 - G2) * 2 / 3;
+        RP.Blue(1).rul = MoveToLinear(RP.Blue(1), P1, 0, 40, 50);
+        RP.Blue(2).rul = MoveToLinear(RP.Blue(2), P2, 0, 40, 50);
+    case -3 %dribbler test
+        for k = [1, 2, 3, 4, 5, 6]
+            RP.Blue(k).rul.SpinnerSpeed = -25;
+            RP.Blue(k).rul.EnableSpinner = 1;
+        end
     case -2 %Test ball moving manager on record
         [BState, BPosHX, BPosHY, BPEstim] = ballMovingManager(RP.Ball);
         fprintf('BF:%3d    BS:%3d    SD:%3d    S:   [%d, %d]', BState.BFast, BState.BStand, BState.saveDir, BState.BSpeed(1), BState.BSpeed(2));
@@ -164,15 +176,19 @@ switch activeAlgorithm
         aimVicinity = 300;
         agent = RP.Blue(5);
         RP.Blue(5).rul = MoveToWithFastBuildPath(agent, aimPoint, aimVicinity, obstacles([1: 4, 6], :));
-    case 1
+    case 1 %Steal ball test
         %One camera field parameters
         LeftBottom = [-3.4867   -2.2538] * 1000;
         RightTop = [-125.6602  170.6299];
         LeftGoal = [-3.3474   -1.0248] * 1000;
         RightGoal = [-0.2614   -1.0371] * 1000;
         [BState, BPosHX, BPosHY, BPEstim] = ballMovingManager(RP.Ball);
+        if RP.Ball.I == 0
+            BPEstim = clarifyBallPos(RP.Blue([1, 2]), BPEstim);
+        end
         
-        RP.Blue(1).rul = stealBall(RP.Blue(1), BPEstim, RP.Blue(2), obstacles([2, 3, 5], :));
+        RP.Blue(1).rul = stealBall(RP.Blue(1), BPEstim, RP.Blue(2), obstacles(2, :));
+        RP.Blue(2).rul = stealBall(RP.Blue(2), BPEstim, RP.Blue(1), obstacles(1, :));
     case 2
         %---------------HISTORY MANAGER-----------------
 %         
