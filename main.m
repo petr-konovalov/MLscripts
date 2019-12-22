@@ -65,7 +65,7 @@ border2 = [2000 1500];
 point1 = [-1.7683   -0.2785] * 1000;
 point2 = [1500 800];
 
-BlueIDs = 1:6;
+BlueIDs = [1:7, 12];
 YellowIDs = [];
 
 commonSize = numel(BlueIDs) + numel(YellowIDs);
@@ -138,6 +138,22 @@ end
 %----------------------------------------------------
 
 switch activeAlgorithm
+    case -5 %test optDirGoalAttack
+        G1 = [-3.2686e+03 -882.2051];
+        G2 = [-734.4881 -870.6589];
+        LeftBottom = [-3.4867   -2.2538] * 1000;
+        RightTop = [-125.6602  170.6299];
+        LeftGoal = [-3.3474   -1.0248] * 1000;
+        RightGoal = [-0.2614   -1.0371] * 1000;
+        [BState, BPosHX, BPosHY, BPEstim] = ballMovingManager(RP.Ball);
+        if RP.Ball.I == 0
+            BPEstim = clarifyBallPos(RP.Blue([1, 2]), BPEstim);
+        end
+        RP.Ball.z = BPEstim;
+        
+        if r_dist_points(RP.Blue(1).z, RP.Ball.z) < 1000
+            RP.Blue(1).rul = optDirGoalAttack(RP.Blue(1), RP.Ball, RP.Blue([3, 5, 6]), G2, [-1, 0]);
+        end
     case -4 %reset robot position
         G1 = [-0.2924   -1.1207] * 1000;
         G2 = [-3.1655   -1.1475] * 1000;
@@ -147,7 +163,7 @@ switch activeAlgorithm
         RP.Blue(2).rul = MoveToLinear(RP.Blue(2), P2, 0, 40, 50);
     case -3 %dribbler test
         for k = [1, 2, 3, 4, 5, 6]
-            RP.Blue(k).rul.SpinnerSpeed = -25;
+            RP.Blue(k).rul.SpinnerSpeed = 10;
             RP.Blue(k).rul.EnableSpinner = 1;
         end
     case -2 %Test ball moving manager on record
@@ -171,11 +187,30 @@ switch activeAlgorithm
         else
             RP.Blue(1).rul = MoveToLinear(RP.Blue(1), G2 + [0, 1000], 0, 40, 100);
         end
-    case 0
-        aimPoint = RP.Ball.z;
-        aimVicinity = 300;
-        agent = RP.Blue(5);
-        RP.Blue(5).rul = MoveToWithFastBuildPath(agent, aimPoint, aimVicinity, obstacles([1: 4, 6], :));
+    case 0 %gameModel test
+        [BState, BPosHX, BPosHY, BPEstim] = ballMovingManager(RP.Ball);
+        RP.Ball.z = BPEstim;
+        RP.Ball.x = BPEstim(1);
+        RP.Ball.y = BPEstim(2);
+        
+        coms = [RP.Blue(1), RP.Blue(2); RP.Blue(5), RP.Blue(6)];
+        obsts = obstacles([1, 2, 5, 6], :);
+        G1 = [-3.2686e+03 -882.2051];
+        G2 = [-734.4881 -870.6589];
+        P1 = [-641.7530 86.2067];
+        P2 = [-3.3071e+03 -1.8680e+03]; 
+        Left = min(P1(1), P2(1));
+        Right = max(P1(1), P2(1));
+        Up = max(P1(2), P2(2));
+        Down = min(P1(2), P2(2));
+        field = [Left Down; Right Up];
+        ruls = gameModel(1, coms, obsts, RP.Ball, [G1; G2], [1 0; -1 0], field, BState, BPosHX, BPosHY); 
+        RP.Blue(1).rul = ruls(1);
+        RP.Blue(2).rul = ruls(2);
+        
+        ruls = gameModel(2, coms, obsts, RP.Ball, [G1; G2], [1 0; -1 0], field, BState, BPosHX, BPosHY); 
+        RP.Blue(5).rul = ruls(1);
+        RP.Blue(6).rul = ruls(2);
     case 1 %Steal ball test
         %One camera field parameters
         LeftBottom = [-3.4867   -2.2538] * 1000;
