@@ -1,6 +1,6 @@
 %% MAIN START HEADER
 
-global Blues Yellows Balls Rules FieldInfo RefState RefCommandForTeam RefPartOfFieldLeft RP PAR Modul activeAlgorithm obstacles
+global Blues Yellows Balls Rules FieldInfo RefState RefCommandForTeam RefPartOfFieldLeft RP PAR Modul activeAlgorithm obstacles gameStatus
 
 if isempty(RP)
     addpath tools RPtools MODUL
@@ -138,6 +138,8 @@ end
 %----------------------------------------------------
 
 switch activeAlgorithm
+    case -7 %test ball dribling
+        RP.Blue(5).rul = Crul(15, 12, 0, 2, 0);
     case -6 %test obstacle avoidance
         RP.Blue(3).rul = MoveToWithFastBuildPath(RP.Blue(3), RP.Ball.z, 300, obstacles(6, :));
     case -5 %test optDirGoalAttack
@@ -207,14 +209,42 @@ switch activeAlgorithm
         Right = max(P1(1), P2(1));
         Up = max(P1(2), P2(2));
         Down = min(P1(2), P2(2));
+        center = [(Left + Right) * 0.5; (Up + Down) * 0.5];
         field = [Left Down; Right Up];
-        ruls = gameModel(1, coms, obsts, RP.Ball, [G1; G2], [1 0; -1 0], field, BState, BPosHX, BPosHY); 
-        RP.Blue(cId(1)).rul = ruls(1);
-        RP.Blue(cId(2)).rul = ruls(2);
+        height = abs(Left - Right);
+        width = abs(Up - Down);
+        V1 = [1, 0];
+        V2 = [-1, 0];
         
-        ruls = gameModel(2, coms, obsts, RP.Ball, [G1; G2], [1 0; -1 0], field, BState, BPosHX, BPosHY); 
-        RP.Blue(cId(3)).rul = ruls(1);
-        RP.Blue(cId(4)).rul = ruls(2);
+        if isempty(gameStatus)
+            gameStatus = 0;
+        end
+        
+        switch gameStatus
+            case 1 %Start game. First team is playing
+                [ruls1, ruls2] = startGame(center, coms, obsts, RP.Ball, [G1; G2], [1 0; -1 0], field, BState, BPosHX, BPosHY);
+            case 2 %Start game. Second team is playing
+                [ruls1, ruls2] = startGame(center, coms, obsts, RP.Ball, [G1; G2], [1 0; -1 0], field, BState, BPosHX, BPosHY);
+            case 3 %normal game
+                ruls1 = gameModel(1, coms, obsts, RP.Ball, [G1; G2], [1 0; -1 0], field, BState, BPosHX, BPosHY, 3); 
+                ruls2 = gameModel(2, coms, obsts, RP.Ball, [G1; G2], [1 0; -1 0], field, BState, BPosHX, BPosHY, 3); 
+        end
+        
+        RP.Blue(cId(1)).rul = ruls1(1);
+        RP.Blue(cId(2)).rul = ruls1(2);
+        RP.Blue(cId(3)).rul = ruls2(1);
+        RP.Blue(cId(4)).rul = ruls2(2);
+        
+        if gameStatus == 0 %reset configuration
+            Pnt = zeros(4, 2);
+            Pnt(1, :) = G1 + V1 * 250 - [V1(2), -V1(1)] * width * 0.4;
+            Pnt(2, :) = G1 + V1 * 250 + [V1(2), -V1(1)] * width * 0.4;
+            Pnt(3, :) = G2 + V2 * 250 - [V2(2), -V2(1)] * width * 0.4;
+            Pnt(4, :) = G2 + V2 * 250 + [V2(2), -V2(1)] * width * 0.4;
+            for k = 1: 4
+                RP.Blue(cId(k)).rul = MoveToWithFastBuildPath(RP.Blue(cId(k)), Pnt(k, :), 50, obsts([1:k-1, k+1:size(obsts, 1)], :));
+            end
+        end
     case 1 %Steal ball test
         %One camera field parameters
         LeftBottom = [-3.4867   -2.2538] * 1000;

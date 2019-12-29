@@ -39,13 +39,8 @@ function rul = stealBall(agent, BPEstim, ballOwner, obstacles)
         %Если нет опасности выпнуть из поля или по своим воротам, то пинаем
         %rul = Crul(0, 0, 0, 0, 1);
         %Иначе просто фигачим вперёд
-        rul = Crul(30, 0, 0, 0, 0);
+        rul = Crul(15, 12 * pushDir(agent.id), 0, 2 * pushDir(agent.id), 0);
         rotRul = RotateToLinear(agent, BPEstim, 3, 10, 0.1);
         rul.SpeedR = rotRul.SpeedR;
     end
-end
-
-%required norm(SDir) == 1
-function res = inHalfStrip(pnt, SCenter, SDir, SWidth)
-    res = abs(vectMult(pnt - SCenter, SDir)) < SWidth &&  scalMult(pnt - SCenter, SDir) > 0;
 end
