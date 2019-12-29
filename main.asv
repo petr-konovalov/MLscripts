@@ -138,8 +138,6 @@ end
 %----------------------------------------------------
 
 switch activeAlgorithm
-    case -6 %test obstacle avoidance
-        RP.Blue(3).rul = MoveToWithFastBuildPath(RP.Blue(3), RP.Ball.z, 300, obstacles(6, :));
     case -5 %test optDirGoalAttack
         G1 = [-3.2686e+03 -882.2051];
         G2 = [-734.4881 -870.6589];
@@ -194,11 +192,10 @@ switch activeAlgorithm
         RP.Ball.z = BPEstim;
         RP.Ball.x = BPEstim(1);
         RP.Ball.y = BPEstim(2);
-        %disp(BPEstim);
         
-        cId = [1, 3, 5, 6];
-        coms = [RP.Blue(cId(1)), RP.Blue(cId(2)); RP.Blue(cId(3)), RP.Blue(cId(4))];
-        obsts = obstacles(cId, :);
+        cId = [1, 3; 5, 6;];
+        coms = [RP.Blue(cId(1, 1)), RP.Blue(cId(1, 1)); RP.Blue(5), RP.Blue(6)];
+        obsts = obstacles([1, 2, 5, 6], :);
         G1 = [-3.2686e+03 -882.2051];
         G2 = [-734.4881 -870.6589];
         P1 = [-641.7530 86.2067];
@@ -209,12 +206,12 @@ switch activeAlgorithm
         Down = min(P1(2), P2(2));
         field = [Left Down; Right Up];
         ruls = gameModel(1, coms, obsts, RP.Ball, [G1; G2], [1 0; -1 0], field, BState, BPosHX, BPosHY); 
-        RP.Blue(cId(1)).rul = ruls(1);
-        RP.Blue(cId(2)).rul = ruls(2);
+        RP.Blue(1).rul = ruls(1);
+        RP.Blue(3).rul = ruls(3);
         
         ruls = gameModel(2, coms, obsts, RP.Ball, [G1; G2], [1 0; -1 0], field, BState, BPosHX, BPosHY); 
-        RP.Blue(cId(3)).rul = ruls(1);
-        RP.Blue(cId(4)).rul = ruls(2);
+        RP.Blue(5).rul = ruls(1);
+        RP.Blue(6).rul = ruls(2);
     case 1 %Steal ball test
         %One camera field parameters
         LeftBottom = [-3.4867   -2.2538] * 1000;
