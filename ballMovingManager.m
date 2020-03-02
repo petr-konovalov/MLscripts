@@ -26,6 +26,7 @@ function [BState, BPosHX, BPosHY, BPEstim] = ballMovingManager(B)
     end
     
     if (B.I ~= 0)
+        BPEstim = B.z;
         if (T(hLen) ~= curTime && (B.x ~= hX(hLen) || B.y ~= hY(hLen))) %check for new data
             for i = 1: hLen - 1
                 hX(i) = hX(i + 1);
@@ -37,10 +38,15 @@ function [BState, BPosHX, BPosHY, BPEstim] = ballMovingManager(B)
             T(hLen) = cputime();
 
             BState = ballRecognizedCase(B, T, hX, hY, hLen, hStepBallSpeed, hStepSaveDir, fastBallSpeed, ballStandingSpeed);
+            %Ball speed can't be too large
+            if BState.BSpeed > 10
+                %prediction model
+                BState = oldBState;
+                BPEstim = ballNotRecognizedCase(curTime - T(hLen), [hX(hLen), hY(hLen)], oldBState);
+            end
         else
             BState = oldBState;
         end
-        BPEstim = B.z;
     else
         %prediction model
         BPEstim = ballNotRecognizedCase(curTime - T(hLen), [hX(hLen), hY(hLen)], oldBState);

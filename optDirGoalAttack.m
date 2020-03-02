@@ -1,6 +1,6 @@
 %отакует ворота в оптимально направлении 
 %(в модели где скорость мяча и роботов постоянны)
-function [rul] = optDirGoalAttack(agent, ball, oppCom, G, V)
+function [rul, isDetermined] = optDirGoalAttack(agent, ball, oppCom, G, V)
     v = 300;            %размер ворот
     R = 130;            %радиус робота
     K = 2;              %скорость мяча делённая на скорость робота
@@ -13,16 +13,15 @@ function [rul] = optDirGoalAttack(agent, ball, oppCom, G, V)
         ballOccupied = ballOccupied || r_dist_points(oppPos(k, :), ball.z) <= R;
     end
     
-    if ballOccupied
-        rul = MoveToLinear(agent, ball.z, 0, 25, 50);
-    else
+    isDetermined = false;
+    rul = Crul(0, 0, 0, 0, 0);
+    if ~ballOccupied
         nV = [V(2), -V(1)];
         [optDir, optScore] = getOptimalDirect(G - nV * v, G + nV * v, ball.z, oppPos, R, K);
         %проверяем определено ли оптимальное направление
         if abs(optDir(1)) + abs(optDir(2)) > 0
             rul = attackOptDir(agent, ball, oppPos, G, R, nV, v, optDir, optScore, K);
-        else
-            rul = MoveToLinear(agent, ball.z, 0, 25, 50);
+            isDetermined = true;
         end
     end
 end

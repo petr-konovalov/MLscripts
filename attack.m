@@ -1,4 +1,8 @@
-function rul = attack(agent, ball, aim)
+function rul = attack(agent, ball, aim, kickType)
+    if nargin == 3
+        %forward kick is default
+        kickType = 1;
+    end
     if (isState1(agent.z, ball.z) && ~agent.isBallInside)
         rul = MoveToWithRotation(agent, ball.z, ball.z, 1/1000, 20, 0, 2, 20, 0, 0, 0.1, false);
     else
@@ -12,7 +16,7 @@ function rul = attack(agent, ball, aim)
         else
             %disp('st4');
             rul = MoveToWithRotation(agent, ball.z, aim, 0, 25, 0, 2, 9, 0, 0, 0.01, false);
-            rul.AutoKick = 1;
+            rul.AutoKick = kickType;
         end
     end
 end

@@ -1,5 +1,8 @@
-function rul = GoalKeeperOnLine(agent, G, V, BPosHX, BPosHY, ballStanding, ballSpeed)
-    v = 400; % окрестность ворот, их ширина, радиус окружности
+function rul = GoalKeeperOnLine(agent, G, V, BPosHX, BPosHY, ballStanding, ballSpeed, v)
+    %v = 600; % окрестность ворот, их ширина, радиус окружности
+    if nargin == 7
+        v = 650;
+    end
     eps = 50;
     %minBallSpeed = 0.5;
     %historyLength = 8;
@@ -72,7 +75,7 @@ function rul = GoalKeeperOnLine(agent, G, V, BPosHX, BPosHY, ballStanding, ballS
 %           Speed = SpeedX + SpeedY;
 %           rul = Crul(Speed(1), Speed(2), 0, 0, 0);
             %rulRot = RotateToLinear(agent, B.z, 5, 0, 0.1);
-            rul = MoveToPD(agent, [x, y], 80, 10/750, 0, 60);
+            rul = MoveToPD(agent, [x, y], 50, 1/750, 0, 60);
             %rul = MoveToPD(agent, [x, y], 50, 0, 0, 40);
             %rul = MoveToWithFBPPlusParam(agent, [x,y], 40, obstacles([1 : agent.id, agent.id : 8], :));
             %rul.SpeedR = rulRot.SpeedR;
@@ -86,7 +89,7 @@ function rul = GoalKeeperOnLine(agent, G, V, BPosHX, BPosHY, ballStanding, ballS
         %rul = Crul(SpeedX(1), SpeedX(2), 0, 0, 0);
         %rul = RotateToLinear(agent, [B.x, B.y], 10, 15, 0.2);
         %rul = MoveToWithRotation(agent, G, B.z, 0, 20, 75, 2, 20, 0, 0, 0.05, false);
-        rul = MoveToPD(agent, G, 15, 2/750, -1.5, 50);
+        rul = MoveToPD(agent, G, 15, 2/750, 0, 50);
         %rul = MoveToWithFBPPlusParam(agent, G, 50, obstacles([1 : agent.id, agent.id : 8], :));
         rotRul = RotateToLinear(agent, BPos, 2, 20, 0.05);
         rul.SpeedR = rotRul.SpeedR;

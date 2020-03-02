@@ -65,7 +65,7 @@ border2 = [2000 1500];
 point1 = [-1.7683   -0.2785] * 1000;
 point2 = [1500 800];
 
-BlueIDs = [1:7, 12];
+BlueIDs = 1:6;
 YellowIDs = [];
 
 commonSize = numel(BlueIDs) + numel(YellowIDs);
@@ -136,8 +136,123 @@ end
 
 
 %----------------------------------------------------
-
+dP = [0 400];
+dAim = [6000 0];
+Pnt1 = [-2.7833e+03 -1.6918e+03];
+Pnt2 = Pnt1 + dP;
+Pnt3 = Pnt2 + dP;
 switch activeAlgorithm
+    case -18 %old motion control algorithm
+        RP.Blue(5).rul = MoveToLinear(RP.Blue(5), Pnt1 + dAim, 0, 80, 70);
+        RP.Blue(3).rul = MoveToLinear(RP.Blue(3), Pnt2 + dAim, 0, 80, 70);
+        RP.Blue(2).rul = MoveToLinear(RP.Blue(2), Pnt3 + dAim, 0, 80, 70);
+    case -17 %trapetzoid motion reset
+        RP.Blue(5).rul = MoveToLinear(RP.Blue(5), Pnt1, 0, 30, 30);
+        RP.Blue(3).rul = MoveToLinear(RP.Blue(3), Pnt2, 0, 30, 30);
+        RP.Blue(2).rul = MoveToLinear(RP.Blue(2), Pnt3, 0, 30, 30);
+    case -16 %rotate to ball
+        RP.Blue(5).rul = RotateToLinear(RP.Blue(5), Pnt1 + dAim, 5, 10, 0.05); 
+        RP.Blue(3).rul = RotateToLinear(RP.Blue(3), Pnt2 + dAim, 5, 10, 0.05); 
+        RP.Blue(2).rul = RotateToLinear(RP.Blue(2), Pnt3 + dAim, 5, 10, 0.05); 
+    case -15 %trapetzoid motion start
+        alp = 0.1;
+        RP.Blue(5).rul = motionControl(RP.Blue(5), 'moving start', Pnt1 + dAim);
+        RP.Blue(3).rul = motionControl(RP.Blue(3), 'moving start', Pnt2 + dAim);
+        RP.Blue(2).rul = motionControl(RP.Blue(2), 'moving start', Pnt3 + dAim);
+        activeAlgorithm = -14;
+    case -14 %trapetzoid motion
+        RP.Blue(5).rul = motionControl(RP.Blue(5), '');
+        RP.Blue(3).rul = motionControl(RP.Blue(3), '');
+        RP.Blue(2).rul = motionControl(RP.Blue(2), '');
+    case -13 %obstacle avoidance moving
+        P1 = 1.0e+03 * [2.0117 0.2543; 1.387 0.7039; 2.8921 0.6056; 0.5411 1.9896; 2.8817 1.4384; 2.2801 1.9799];
+        P2 = P1([6, 5, 4, 3, 2, 1], :);
+        for k = 1:6
+            RP.Blue(k).rul = MoveToWithFastBuildPath(RP.Blue(k), P2(k, :), 100, obstacles); 
+        end
+    case -12 %ball shooting
+        [BState, BPosHX, BPosHY, BPEstim] = ballMovingManager(RP.Ball);
+        RP.Ball.z = BPEstim;
+        atackerID = 2;
+        if r_dist_points(RP.Blue(atackerID).z, RP.Ball.z) > 500
+            RP.Blue(atackerID).rul = MoveToWithFBPPlusParam(RP.Blue(atackerID), RP.Ball.z, 300, obstacles);
+        else
+            RP.Blue(atackerID).rul = attack(RP.Blue(atackerID), RP.Ball, [4500, 0]);
+        end
+    case -11 %start acceleration moving
+        accelerationMove();
+        activeAlgorithm = -10;
+        agentH = zeros(3, 3);
+        T = 0;
+    case -10 %acceleration moving process
+        aId = 3;
+        P = [-3000 -600];
+        curT = cputime();
+        if curT - T > 0.1
+            agentH([2, 3], :) = agentH([1, 2], :);
+            T = curT;
+            agentH(1, 1) = T;
+            agentH(1, 2) = RP.Blue(aId).x;
+            agentH(1, 3) = RP.Blue(aId).y;
+        end
+        RP.Blue(aId).rul = accelerationMove(RP.Blue(aId), agentH, P, 0.1, 10);
+    case -9 %speed estimation reset state
+        sEstimState = 0;
+        activeAlgorithm = -8;
+    case -8 %speed estimation
+        P1 = [-1000 -600];
+        P2 = [-3000 -600];
+        speed = 30;
+        aId = 3;
+        switch sEstimState
+            case 0 
+                T = cputime();
+                pT1 = T;
+                pT2 = T;
+                pT3 = T;
+                aPos = RP.Blue(aId).z;
+                pPos1 = aPos;
+                pPos2 = aPos;
+                pPos3 = aPos;
+                if r_dist_points(RP.Blue(aId).z, P1) > 300
+                    P = P1;
+                else
+                    P = P2;
+                end
+                sEstimState = 1;
+            case 1 %rotating to P
+                RP.Blue(aId).rul = RotateToLinear(RP.Blue(aId), P, 5, 7, 0.1);
+                if RP.Blue(aId).rul.SpeedR == 0
+                    sEstimState = 2;
+                    T = cputime();
+                    aPos = RP.Blue(aId).z;
+                end
+            case 2 %moving to P
+                RP.Blue(aId).rul = MoveToLinear(RP.Blue(aId), P, 0, speed, 0);
+                curT = cputime();
+                if curT - pT1 > 1
+                    fprintf('Estimate speed (1): %f\n', norm(pPos1 - RP.Blue(aId).z) / (curT - pT1));
+                    %disp(norm(pPos - RP.Blue(aId).z) / (curT - pT));
+                    pPos1 = RP.Blue(aId).z;
+                    pT1 = curT;
+                end
+                if curT - pT2 > 0.5
+                    fprintf('Estimate speed (2): %f\n', norm(pPos2 - RP.Blue(aId).z) / (curT - pT2));
+                    %disp(norm(pPos - RP.Blue(aId).z) / (curT - pT));
+                    pPos2 = RP.Blue(aId).z;
+                    pT2 = curT;
+                end
+                if curT - pT3 > 0.25
+                    fprintf('Estimate speed (3): %f\n', norm(pPos3 - RP.Blue(aId).z) / (curT - pT3));
+                    %disp(norm(pPos - RP.Blue(aId).z) / (curT - pT));
+                    pPos3 = RP.Blue(aId).z;
+                    pT3 = curT;
+                end
+                if r_dist_points(RP.Blue(aId).z, P) < 300
+                    fprintf('Average speed: %f', (norm(aPos - RP.Blue(aId).z) / (curT - T)));
+                    sEstimState = -1;
+                end
+        end
     case -7 %test ball dribling
         RP.Blue(5).rul = Crul(15, 12, 0, 2, 0);
     case -6 %test obstacle avoidance
@@ -198,51 +313,67 @@ switch activeAlgorithm
         RP.Ball.y = BPEstim(2);
         %disp(BPEstim);
         
-        cId = [1, 3, 5, 6];
-        coms = [RP.Blue(cId(1)), RP.Blue(cId(2)); RP.Blue(cId(3)), RP.Blue(cId(4))];
+        cId = [2, 6, 4, 1, 3, 5];
+        coms = [RP.Blue(cId(1)), RP.Blue(cId(2)), RP.Blue(cId(3)); RP.Blue(cId(4)), RP.Blue(cId(5)),  RP.Blue(cId(6))];
         obsts = obstacles(cId, :);
-        G1 = [-3.2686e+03 -882.2051];
-        G2 = [-734.4881 -870.6589];
-        P1 = [-641.7530 86.2067];
-        P2 = [-3.3071e+03 -1.8680e+03]; 
+        G1 = [2250 2500];
+        G2 = [2250 -2500];
+        P1 = [4500 2500];
+        P2 = [0 -2500]; 
         Left = min(P1(1), P2(1));
         Right = max(P1(1), P2(1));
         Up = max(P1(2), P2(2));
         Down = min(P1(2), P2(2));
-        center = [(Left + Right) * 0.5; (Up + Down) * 0.5];
+        center = [(Left + Right) * 0.5, (Up + Down) * 0.5];
+        %disp(BPEstim);
+        centerRadius = 300;
         field = [Left Down; Right Up];
         height = abs(Left - Right);
         width = abs(Up - Down);
-        V1 = [1, 0];
-        V2 = [-1, 0];
+        V1 = [0, -1];
+        V2 = [0, 1];
         
         if isempty(gameStatus)
             gameStatus = 0;
         end
         
+        ruls1 = [Crul(0, 0, 0, 0, 0); Crul(0, 0, 0, 0, 0); Crul(0, 0, 0, 0, 0)];
+        ruls2 = [Crul(0, 0, 0, 0, 0); Crul(0, 0, 0, 0, 0); Crul(0, 0, 0, 0, 0)];
         switch gameStatus
             case 1 %Start game. First team is playing
-                [ruls1, ruls2] = startGame(center, coms, obsts, RP.Ball, [G1; G2], [1 0; -1 0], field, BState, BPosHX, BPosHY);
+                [ruls1, ruls2] = startGame(center, coms, obsts, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, centerRadius);
             case 2 %Start game. Second team is playing
-                [ruls1, ruls2] = startGame(center, coms, obsts, RP.Ball, [G1; G2], [1 0; -1 0], field, BState, BPosHX, BPosHY);
+                [ruls1, ruls2] = startGame(center, coms, obsts, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, centerRadius);
             case 3 %normal game
-                ruls1 = gameModel(1, coms, obsts, RP.Ball, [G1; G2], [1 0; -1 0], field, BState, BPosHX, BPosHY, 3); 
-                ruls2 = gameModel(2, coms, obsts, RP.Ball, [G1; G2], [1 0; -1 0], field, BState, BPosHX, BPosHY, 3); 
+                ruls1 = gameModel(1, coms, obsts, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, 3); 
+                ruls2 = gameModel(2, coms, obsts, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, 3); 
+            case 4 %stop game
+                ruls1 = gameModel(1, coms, obsts, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, 4); 
+                ruls2 = gameModel(2, coms, obsts, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, 4); 
+            case 5 %move ball to center
+                ruls = MoveBallToCenter(RP.Blue(cId), RP.Ball, center, centerRadius);
+                ruls1 = ruls(1:2);
+                ruls2 = ruls(3:4);
         end
         
         RP.Blue(cId(1)).rul = ruls1(1);
         RP.Blue(cId(2)).rul = ruls1(2);
-        RP.Blue(cId(3)).rul = ruls2(1);
-        RP.Blue(cId(4)).rul = ruls2(2);
+        RP.Blue(cId(3)).rul = ruls1(3);
+        
+        RP.Blue(cId(4)).rul = ruls2(1);
+        RP.Blue(cId(5)).rul = ruls2(2);
+        RP.Blue(cId(6)).rul = ruls2(3);
         
         if gameStatus == 0 %reset configuration
             Pnt = zeros(4, 2);
-            Pnt(1, :) = G1 + V1 * 250 - [V1(2), -V1(1)] * width * 0.4;
-            Pnt(2, :) = G1 + V1 * 250 + [V1(2), -V1(1)] * width * 0.4;
-            Pnt(3, :) = G2 + V2 * 250 - [V2(2), -V2(1)] * width * 0.4;
-            Pnt(4, :) = G2 + V2 * 250 + [V2(2), -V2(1)] * width * 0.4;
-            for k = 1: 4
-                RP.Blue(cId(k)).rul = MoveToWithFastBuildPath(RP.Blue(cId(k)), Pnt(k, :), 50, obsts([1:k-1, k+1:size(obsts, 1)], :));
+            Pnt(1, :) = G1 + V1 * 500 - [V1(2), -V1(1)] * width * 0.35;
+            Pnt(2, :) = G1 + V1 * 500 + [V1(2), -V1(1)] * width * 0.35;
+            Pnt(3, :) = G1 + V1 * 500;
+            Pnt(4, :) = G2 + V2 * 500 - [V2(2), -V2(1)] * width * 0.35;
+            Pnt(5, :) = G2 + V2 * 500 + [V2(2), -V2(1)] * width * 0.35;
+            Pnt(6, :) = G2 + V2 * 500;
+            for k = 1: 6
+                RP.Blue(cId(k)).rul = MoveToWithFastBuildPath(RP.Blue(cId(k)), Pnt(k, :), 50, obstacles([1:cId(k)-1, cId(k)+1:size(obstacles, 1)], :));
             end
         end
     case 1 %Steal ball test
@@ -306,8 +437,16 @@ switch activeAlgorithm
         
         oldBallPos = RP.Ball.z;
     case 100001
-        [fastMoving, ballStanding, saveDir, ballSpeed, BPosHX, BPosHY] = ballMovingManager(RP.Ball);
-        RP.Blue(1).rul = GoalKeeperOnLine(RP.Blue(1), G2, -V, BPosHX, BPosHY, ballStanding, ballSpeed);
+        G2 = [-734.4881 -870.6589];
+        V2 = [-1, 0];
+        [BState, BPosHX, BPosHY, BPEstim] = ballMovingManager(RP.Ball);
+        RP.Blue(3).rul = GoalKeeperOnLine(RP.Blue(3), G2, V2, BPosHX, BPosHY, BState.BStand, BState.BSpeed);
+        if r_dist_points(RP.Ball.z, [-2.5860e+03 -932.6824]) < 1000
+            [RP.Blue(1).rul, problem] = optDirGoalAttack(RP.Blue(1), RP.Ball, RP.Blue(3), G2, V2); 
+            if ~problem
+                disp('problem')
+            end
+        end
         %RP.Blue(1).rul = MoveToWithFBPPlusParam(RP.Blue(cmd1(1)), G1, vicinity, obstacles([1:cmd1(1)-1, cmd1(1)+1:6], :));
     case 102 
            
@@ -423,7 +562,7 @@ switch activeAlgorithm
     case 10001
         RP.Blue(8).rul = MoveToPD(RP.Blue(8), G + 150 * V, 15, 4/750, -1.5, 50);
     case 10002
-        RP.Blue(2).rul = MoveToWithFastBuildPath(RP.Blue(2), [-1.6749e+03 1.1513e+03], 150, obstacles);
+        RP.Blue(2).rul = MoveToWithFastBuildPath(RP.Blue(2), [200 200], 150, obstacles([1, 3:6], :));
         %RP.Blue(4).rul = MoveToLinear(RP.Blue(4), [-1.6749e+03 1.1513e+03], 0, 40, 50);
     case 10003
         RP.Blue(7).rul = Crul(0, 0, 0, 20, 0);
@@ -433,8 +572,8 @@ switch activeAlgorithm
         RP.Blue(4).rul = MoveToPID(RP.Blue(4), [-1.5e+03 0.7e+03], 35, 0.5/750, 0, 0, 40);
         RP.Blue(7).rul = MoveToPID(RP.Blue(7), [-0.9e+03 -0.7e+03], 35, 0.5/750, 0, 0, 40);   
     case 10006
-        RP.Blue(4).rul = MoveToLinear(RP.Blue(4), [-600 -986], 0, 40, 50);
-        RP.Blue(7).rul = MoveToLinear(RP.Blue(7), [-600 986], 0, 40, 50);
+        RP.Blue(6).rul = MoveToLinear(RP.Blue(6), RP.Ball.z, 0, 40, 300);
+        %RP.Blue(7).rul = MoveToLinear(RP.Blue(7), [-600 986], 0, 40, 50);
     case 10007
 %             RP.Blue(2).rul = MoveToLinear(RP.Blue(2), [-845.4487 0], 0, 25, 50);
 %             RP.Blue(7).rul = MoveToLinear(RP.Blue(7), 1000 * [-1.6729 0.8112], 0, 25, 50);

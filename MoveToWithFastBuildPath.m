@@ -1,23 +1,33 @@
 function rul = MoveToWithFastBuildPath(agent, aimPoint, aimVicinity, obstacles)
-    step = 80;
-    NormalSpeed = 35;
-    infinity = 1000000;
-    minSpeed = 10;
-    minMovement = 100;
-    coef = 2/750;
-
+    step = 80; %ѕараметр алгоритма построени€ маршрута, который регулирует отступ от преп€тстви€
+    NormalSpeed = 35; %—корость задаваема€ роботам
+    infinity = 1000000; %ѕросто бесконечность
     
+    % онстанты дл€ более тонкой настройки скорости
+    %minSpeed = 10; 
+    %minMovement = 100;
+    %coef = 2/750;
+    
+    %»сключаем преп€тствие которое есть сам робот
+    ownObst = getOwnObst(agent.z, obstacles);
+    obstacles = obstacles([1:ownObst-1, ownObst+1:size(obstacles, 1)], :);
+    
+    %»щем ближайшие преп€тстви€ к робото и к цели
     [obst, ~] = getNearestObstacle(agent.z, obstacles);
+    [obstAim, ~] = getNearestObstacle(aimPoint, obstacles);
     agentPos = agent.z;
     
     %{
-        если робот оказалс€ внутри преп€тсви€
+        если робот или цель оказались внутри преп€тсви€
         (например из-за погрешностей камеры или просто немного не вырулил)
         чтобы алгоритм расчЄта маршрута сработал нормально, считаем маршрут
         не от робота, а от точки котора€ находитс€ р€дом с преп€тствием
     %}
     if isObstaclePoint(agentPos, [obstacles(obst, 1), obstacles(obst, 2)], obstacles(obst, 3))
         agentPos = getPointOutOfObstacle(agentPos, [obstacles(obst, 1), obstacles(obst, 2)], obstacles(obst, 3), 10);
+    end
+    if isObstaclePoint(aimPoint, [obstacles(obstAim, 1), obstacles(obstAim, 2)], obstacles(obstAim, 3))
+        aimPoint = getPointOutOfObstacle(aimPoint, [obstacles(obstAim, 1), obstacles(obstAim, 2)], obstacles(obstAim, 3), 10);
     end
     
     if r_dist_points(agent.z, aimPoint) < aimVicinity
@@ -30,6 +40,7 @@ function rul = MoveToWithFastBuildPath(agent, aimPoint, aimVicinity, obstacles)
         % строитс€ два пути (обход€т пр€п€тсви€ с различных сторон)
         firstPath = fastBuildPath(agentPos, aimPoint, obstacles, -step, 0);
         secondPath = fastBuildPath(agentPos, aimPoint, obstacles, step, 0);
+        %”дал€ем лишние промежуточные точки маршрута
         if firstPath.size() > 2
             firstPath = pathOptimize(firstPath, obstacles);
         end
@@ -76,12 +87,28 @@ function rul = MoveToWithFastBuildPath(agent, aimPoint, aimVicinity, obstacles)
     end
 end
 
-function [res] = isObstaclePoint(point, obstCenter, obstRadius)
-    res = r_dist_points(point, obstCenter) < obstRadius;
+%¬озвращает номер преп€тстви€ которым €вл€етс€ сам робот
+function [res] = getOwnObst(agentPos, obstacles)
+    res = 0;
+    OwnR = 40;
+    for k = 1: size(obstacles, 1)
+        if r_dist_points(agentPos, obstacles(k, [1, 2])) < OwnR
+            res = k;
+        end
+    end
 end
 
+%ѕровер€ет принадлежит ли точка окружности с заданным центром и радиусом
+function [res] = isObstaclePoint(point, obstCenter, obstRadius)
+    res = r_dist_points(point, obstCenter) <= obstRadius;
+end
+
+%¬озвращает точку лежащую вне окружности с заданным центром (obstCenter) 
+%и радиусом (obstRadius) и лежащую на луче выпущенном из центра окружности 
+%в направление заданной точки (point). ѕараметр step регулирует рассто€ние
+%возвращаемой точки от исходной окружности
 function [res] = getPointOutOfObstacle(point, obstCenter, obstRadius, step)
-    vect = point - obstCenter;
+    vect = point - obstCenter; 
     vect = vect / sqrt(vect(1) ^ 2 + vect(2) ^ 2) * (step + obstRadius * sign(step));
     res = obstCenter + vect;
 end
