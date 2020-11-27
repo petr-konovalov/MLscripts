@@ -1,7 +1,10 @@
-function rul = MoveToWithFastBuildPath(agent, aimPoint, aimVicinity, obstacles)
+function rul = MoveToWithFastBuildPath(agent, aimPoint, aimVicinity, obstacles, NormalSpeed)
     step = 80; %Параметр алгоритма построения маршрута, который регулирует отступ от препятствия
-    NormalSpeed = 35; %Скорость задаваемая роботам
     infinity = 1000000; %Просто бесконечность
+    
+    if nargin == 4
+        NormalSpeed = 35; %Скорость задаваемая роботам
+    end
     
     %Константы для более тонкой настройки скорости
     %minSpeed = 10; 

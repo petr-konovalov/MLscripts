@@ -109,7 +109,7 @@ end
 function rul = activeAttackRole(agent, friend, ball, oppCom, oppObst, oppG, oppV)
     persistent timeDetermined;
     persistent wasDetermined;
-    passSegLen = 2;
+    passSegLen = 20;
     
     dir = [cos(agent.ang), sin(agent.ang)];
     smallDist = 150;
@@ -129,10 +129,11 @@ function rul = activeAttackRole(agent, friend, ball, oppCom, oppObst, oppG, oppV
         disp('shoot');
         rul = Crul(0, 0, 1, 0, 0);
     else
-        [ownerId, own] = getBallOppOwner(ball, oppCom, smallDist);
+        [ownerId, own] = getBallOppOwner(ball, oppCom, ownerDist);
         %≈сли какой-то робот противника слишком близко приблизилс€ к м€чу
         %то выполн€етс€ алгоритм перехвата м€ча, иначе выполн€ютс€
         %процедуры по подъезду и прицеливанию дл€ удара по воротам
+        %disp(own && inHalfPlane(oppCom(ownerId).z, agent.z - dir * 200, dir));
         if own && inHalfPlane(oppCom(ownerId).z, agent.z - dir * 200, dir)
             vec = ball.z - oppCom(ownerId).z;
             vec = vec / norm(vec);
@@ -151,7 +152,7 @@ function rul = activeAttackRole(agent, friend, ball, oppCom, oppObst, oppG, oppV
                 disp('pass');
                 %≈сли смотрим на сокомандника и можем ударить, делаем это
                 rul = Crul(0, 0, 0, 0, 1);
-            elseif r_dist_points(agent.z, ball.z) < ownerDist && inHalfStrip(ball.z, agent.z, dir, 30)
+            elseif r_dist_points(agent.z, ball.z) < ownerDist && inHalfStrip(ball.z, agent.z, dir, 70)
                 %здесь начнутс€ проблемы когда добавим вратарей
                 [rul, isDetermined] = optDirGoalAttack(agent, ball, oppCom, G, oppV);
                 curTime = cputime();

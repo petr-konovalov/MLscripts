@@ -22,14 +22,14 @@ function rul = stealBall(agent, BPEstim, ballOwner, obstacles)
     elseif inHalfStrip(ballOwner.z, agent.z, agentDir, takeWidth) || r_dist_points(BPEstim, ballOwner.z) < smallDist 
         disp('state 2');
         %change pushing direction
-        if ~agent.isBallInside
+        if r_dist_points(agent.z, BPEstim) > 120%~agent.isBallInside
             rul = MoveToLinear(agent, BPEstim, 0, 15, 0);
             rotRul = RotateToLinear(agent, BPEstim, 3, 10, 0.1);
             rul.SpeedR = rotRul.SpeedR;
         else
-            if randi(100) > 80
+            if randi(100) > 85
                 pushDir(agent.id) = -1 - pushDir(agent.id);
-                spinSpeed(agent.id) = randi(10) + 10;
+                spinSpeed(agent.id) = (randi(2) - 1) * 30 + 10;
             end
             rul = Crul(8, 8 * pushDir(agent.id), 0, spinSpeed(agent.id) * pushDir(agent.id), 0);
         end

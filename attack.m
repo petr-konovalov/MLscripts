@@ -3,21 +3,24 @@ function rul = attack(agent, ball, aim, kickType)
         %forward kick is default
         kickType = 1;
     end
-    if (isState1(agent.z, ball.z) && ~agent.isBallInside)
+    if (isState1(agent.z, ball.z))
         rul = MoveToWithRotation(agent, ball.z, ball.z, 1/1000, 20, 0, 2, 20, 0, 0, 0.1, false);
     else
         error_ang = errorAng(agent.z, ball.z, aim); 
-        if (isState2(agent.z, ball.z, aim) && (~agent.isBallInside && isState3(agent.z, agent.ang, aim, 0.1)))
-            %disp('st2');
-            rul = goAroundPoint(agent, ball.z, 100, 1000 * sign(error_ang), 5, 20 + 8 * abs(error_ang)); 
-        elseif (isState3(agent.z, agent.ang, aim, 0.015))
-            %disp('st3');
+        if (isState2(agent.z, ball.z, aim) && isState3(agent.z, agent.ang, aim, 0.1))
+            disp('st2');
+            rul = goAroundPoint(agent, ball.z, 120, 1000 * sign(error_ang), 5, 20 + 8 * abs(error_ang)); 
+        else 
+            disp('st3');
             rul = MoveToWithRotation(agent, ball.z, aim, 0, 25, 0, 2, 9, 0, 0, 0.01, false);
-        else
-            %disp('st4');
-            rul = MoveToWithRotation(agent, ball.z, aim, 0, 25, 0, 2, 9, 0, 0, 0.01, false);
-            rul.AutoKick = kickType;
+%         else
+%             disp('st4');
+%             rul = MoveToWithRotation(agent, ball.z, aim, 0, 25, 0, 2, 9, 0, 0, 0.01, false);
+%             rul.AutoKick = kickType;
         end
+    end
+    if ~isState3(agent.z, agent.ang, aim, 0.07)
+        rul.AutoKick = kickType;
     end
 end
 

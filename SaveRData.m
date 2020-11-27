@@ -1,0 +1,13 @@
+global RData dataSize;
+FID = fopen('RData1.txt', 'w');
+fprintf(FID, '%f %f %f %f %f %f %f %f;\n', reshape(RData(1, :, 1:8), dataSize, 8)');
+fclose(FID);
+FID = fopen('RData2.txt', 'w');
+fprintf(FID, '%f %f %f %f %f %f %f %f;\n', reshape(RData(2, :, 1:8), dataSize, 8)');
+fclose(FID);
+FID = fopen('RData3.txt', 'w');
+fprintf(FID, '%f %f %f %f %f %f %f %f;\n', reshape(RData(3, :, 1:8), dataSize, 8)');
+fclose(FID);
+FID = fopen('RData4.txt', 'w');
+fprintf(FID, '%f %f %f %f %f %f %f %f;\n', reshape(RData(4, :, 1:8), dataSize, 8)');
+fclose(FID);

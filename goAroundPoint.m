@@ -7,6 +7,9 @@ function [rul] = goAroundPoint(agent, center, R, coef1, coef2, Speed)
     cur = R - dist;
     
     %rul = MoveToLinear(agent, agent.z + coef1 * n + (coef2 * cur + coef3 * (cur - prev)) * v, 0, 40, 0);
-    rul = MoveToWithRotation(agent, agent.z + coef1 * n + coef2 * cur * v, center, 0, Speed, 0, 5, 20, 0, 0, 0.05, false);
+    %rul = MoveToWithRotation(agent, agent.z + coef1 * n + coef2 * cur * v, center, 0, Speed, 0, 5, 20, 0, 0, 0.05, false);
+    rotRul = RotateToLinear(agent, center, 5, 10, 0.1);
+    rul = MoveToLinear(agent, agent.z + coef1 * n + coef2 * cur * v, 0, Speed, 0);
+    rul.SpeedR = rotRul.SpeedR;
 end
 
