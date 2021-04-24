@@ -28,6 +28,7 @@ end
 %}
 for i = 1 : 16
     Rule(i, RP.Blue(i));
+    Rule(i+16, RP.Yellow(i));
 end
 
 global Modul;

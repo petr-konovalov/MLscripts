@@ -97,7 +97,7 @@ end
 % --- Rules для BT ---
 global Rules;
 if isempty(Rules)
-    Rules=zeros(16, 13);
+    Rules=zeros(32, 13);
 end
 
 global activeAlgorithm

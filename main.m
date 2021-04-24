@@ -163,10 +163,11 @@ switch activeAlgorithm
     %210 -- префикс для симулятора
     case 2100 %test all robots for simulator
         for k = 1: 6
-            RP.Blue(k).rul = Crul(0, 0, 0, 20, 0);
+            RP.Yellow(k).rul = Crul(0, 0, 0, 20, 0);
         end
+        %RP.Yellow(6).rul = Crul(0, 0, 0, 20, 0);
     case 2101
-        RP.Blue(1).rul = Crul(0, 0, 1, 0, 0);
+        RP.Blue(4).rul = Crul(0, 0, 1, 0, 0);
     case -18 %old motion control algorithm
         RP.Blue(5).rul = MoveToLinear(RP.Blue(5), Pnt1 + dAim, 0, 80, 70);
         RP.Blue(3).rul = MoveToLinear(RP.Blue(3), Pnt2 + dAim, 0, 80, 70);
