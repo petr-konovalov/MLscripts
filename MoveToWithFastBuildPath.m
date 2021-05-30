@@ -1,11 +1,15 @@
-function rul = MoveToWithFastBuildPath(agent, aimPoint, aimVicinity, obstacles, NormalSpeed)
+function rul = MoveToWithFastBuildPath(agent, aimPoint, aimVicinity, obstacles, NormalSpeed, minSpeed)
     step = 80; %Параметр алгоритма построения маршрута, который регулирует отступ от препятствия
     infinity = 1000000; %Просто бесконечность
+    zeroSpeedThreshold = 500;
     
-    if nargin == 4
-        NormalSpeed = 35; %Скорость задаваемая роботам
+    if nargin <= 4
+        NormalSpeed = 100; %Скорость задаваемая роботам
     end
     
+    if nargin <= 5
+    	minSpeed = 10;
+    end
     %Константы для более тонкой настройки скорости
     %minSpeed = 10; 
     %minMovement = 100;
@@ -35,10 +39,6 @@ function rul = MoveToWithFastBuildPath(agent, aimPoint, aimVicinity, obstacles, 
     
     if r_dist_points(agent.z, aimPoint) < aimVicinity
         rul = Crul(0, 0, 0, 0, 0);
-        %{
-    elseif ~CheckIntersect([agent.x, agent.y], aimPoint, obstacles)
-        rul = MoveToLinear(agent, aimPoint, 0, NormalSpeed, 0);
-        %}
     else
         % строится два пути (обходят пряпятсвия с различных сторон)
         firstPath = fastBuildPath(agentPos, aimPoint, obstacles, -step, 0);
@@ -83,7 +83,11 @@ function rul = MoveToWithFastBuildPath(agent, aimPoint, aimVicinity, obstacles, 
             else
                 point = [secondPoint(1), secondPoint(2)];
             end
-            rul = MoveToLinear(agent, point, 0, NormalSpeed, 0);
+            goalSpeed = minSpeed
+            if norm(point - aimPoint) < zeroSpeedThreshold
+            	goalSpeed = 0;
+           	end
+            rul = MoveToConstAcc(agent, point, goalSpeed, 0, NormalSpeed);
         else
             rul = Crul(0, 0, 0, 0, 0);  
         end

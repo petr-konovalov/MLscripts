@@ -90,7 +90,7 @@ if isempty(obstacles) || size(obstacles, 1) ~= commonSize
     obstacles = zeros(commonSize, 3);
 end
         
-radius = 220;
+radius = 250;
 eps = 10;
 
 BCnt = numel(BlueIDs);
@@ -185,8 +185,40 @@ end
 %gameStatus = 0;
 %game3by3Handler;
 
-aim = [-5000, -3000];
-RP.Blue(1).rul = MoveToConstAcc(RP.Blue(1), aim, 0, 100);
+aim = [-3500, -2000];
+RP.Blue(1).rul = MoveToWithFastBuildPath(RP.Blue(1), aim, 50, obstacles);
+pntsb = [
+	-2000, 200;
+	-1600, -600;
+	-1200, 1000;
+	-800, -1200;
+	-400, 400;
+	0, 700;
+	400, 700;
+	800, -300;
+	1200, 400;
+	1600, 600;
+	2000, -400
+]*1.9;
+for k = 2: numel(pnts)/2
+	RP.Blue(k).rul = MoveToConstAcc(RP.Blue(k), pntsb(k, :), 0, 50);
+end
+pntsy = [
+	-1800, -800;
+	-1400, 400;
+	-1000, 500;
+	-600, -800;
+	-200, 0;
+	200, 200;
+	600, 100;
+	1000, 400;
+	1400, -600;
+	1800, 200;
+	2200, -400
+]*1.9;
+for k = 1: numel(pnts)/2
+	RP.Yellow(k).rul = MoveToConstAcc(RP.Yellow(k), pntsy(k, :), 0, 50);
+end
 %rotRul = RotateToLinear(RP.Blue(1), aim, 0, 5, 0);
 %RP.Blue(1).rul.SpeedR = rotRul.SpeedR;
 
