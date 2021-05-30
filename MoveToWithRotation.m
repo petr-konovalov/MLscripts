@@ -14,11 +14,11 @@ function [rul] = MoveToWithRotation(agent, aimPoint, rotatePoint, sCoef, minSpee
         %global outBuffer;
         
         if (isempty(oldAngDiff) || reset)
-            oldAngDiff = zeros(1, 12);
+            oldAngDiff = zeros(1, 32);
         end
         
         if (isempty(angDiffSum) || reset)
-            angDiffSum = zeros(1, 12);
+            angDiffSum = zeros(1, 32);
         end
         
         if abs(angDiff) > eps

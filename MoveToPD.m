@@ -3,7 +3,7 @@ function [rul] = MoveToPD(agent, aimPoint, minSpeed, P, D, vicinity)
         persistent oldDist;
         
         if (isempty(oldDist))
-            oldDist = zeros(1, 12);
+            oldDist = zeros(1, 32);
         end
         
         speedCoef = 60;

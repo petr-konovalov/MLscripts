@@ -96,8 +96,12 @@ if isempty(Yellows)
 end
 % --- Rules для BT ---
 global Rules;
+global oldRules;
 if isempty(Rules)
     Rules=zeros(32, 13);
+end
+if isempty(oldRules)
+	oldRules = Rules;
 end
 
 global activeAlgorithm

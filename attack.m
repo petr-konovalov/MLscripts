@@ -12,14 +12,15 @@ function rul = attack(agent, ball, aim, kickType)
             rul = goAroundPoint(agent, ball.z, 120, 1000 * sign(error_ang), 5, 20 + 8 * abs(error_ang)); 
         else 
             disp('st3');
-            rul = MoveToWithRotation(agent, ball.z, aim, 0, 25, 0, 2, 9, 0, 0, 0.01, false);
+            rul = MoveToWithRotation(agent, ball.z, aim, 0, 25, 0, 5, 5, 0, 0, 0, false);
 %         else
 %             disp('st4');
 %             rul = MoveToWithRotation(agent, ball.z, aim, 0, 25, 0, 2, 9, 0, 0, 0.01, false);
 %             rul.AutoKick = kickType;
         end
     end
-    if ~isState3(agent.z, agent.ang, aim, 0.07)
+    if ~isState3(agent.z, agent.ang, aim, 0.02)
+    	disp('kick');
         rul.AutoKick = kickType;
     end
 end
