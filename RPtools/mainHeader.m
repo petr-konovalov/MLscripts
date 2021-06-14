@@ -41,6 +41,11 @@
 %       kick: -1                  %Удар пиналкой [-1,0,1]
 
 function RPre=mainHeader()
+global curTime oldTime;
+curTime = cputime();
+if isempty(oldTime)
+	oldTime = curTime;
+end
 %% RP
 global RP;
 if isempty(RP)

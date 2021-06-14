@@ -1,5 +1,5 @@
 function rul = MoveToWithFastBuildPath(agent, aimPoint, aimVicinity, obstacles, NormalSpeed, minSpeed)
-    step = 80; %Параметр алгоритма построения маршрута, который регулирует отступ от препятствия
+    step = 300; %Параметр алгоритма построения маршрута, который регулирует отступ от препятствия
     infinity = 1000000; %Просто бесконечность
     zeroSpeedThreshold = 500;
     
@@ -17,6 +17,7 @@ function rul = MoveToWithFastBuildPath(agent, aimPoint, aimVicinity, obstacles, 
     
     %Исключаем препятствие которое есть сам робот
     ownObst = getOwnObst(agent.z, obstacles);
+    %disp([agent.id, ownObst]);
     obstacles = obstacles([1:ownObst-1, ownObst+1:size(obstacles, 1)], :);
     
     %Ищем ближайшие препятствия к робото и к цели
@@ -36,6 +37,7 @@ function rul = MoveToWithFastBuildPath(agent, aimPoint, aimVicinity, obstacles, 
     if isObstaclePoint(aimPoint, [obstacles(obstAim, 1), obstacles(obstAim, 2)], obstacles(obstAim, 3))
         aimPoint = getPointOutOfObstacle(aimPoint, [obstacles(obstAim, 1), obstacles(obstAim, 2)], obstacles(obstAim, 3), 10);
     end
+    %disp([agent.id, aimPoint]);
     
     if r_dist_points(agent.z, aimPoint) < aimVicinity
         rul = Crul(0, 0, 0, 0, 0);
@@ -83,11 +85,11 @@ function rul = MoveToWithFastBuildPath(agent, aimPoint, aimVicinity, obstacles, 
             else
                 point = [secondPoint(1), secondPoint(2)];
             end
-            goalSpeed = minSpeed
+            goalSpeed = minSpeed;
             if norm(point - aimPoint) < zeroSpeedThreshold
             	goalSpeed = 0;
            	end
-            rul = MoveToConstAcc(agent, point, goalSpeed, 0, NormalSpeed);
+            rul = MoveToConstAcc(agent, point, goalSpeed, aimVicinity, NormalSpeed);
         else
             rul = Crul(0, 0, 0, 0, 0);  
         end

@@ -1,12 +1,11 @@
-function ruls = MoveBallToCenter(agents, ball, center, vicinity)
+function ruls = MoveBallToCenter(agents, ball, center, vicinity, obstacles)
     ruls = getEmptyRuls(size(agents, 2));
     if r_dist_points(ball.z, center) > vicinity
         idNearest = getNearestAgent(agents, ball);
         ruls(idNearest) = moveWithBall(agents(idNearest), ball, center);
-        
         for k = [1: idNearest-1, idNearest+1:size(agents, 2)]
             aimPnt = getOutOfLinePnt(agents(k).z, ball.z, center);
-            ruls(k) = MoveToLinear(agents(k), aimPnt, 0, 30, 70);
+            ruls(k) = MoveToWithFastBuildPath(agents(k), aimPnt, 50, obstacles);
         end
     end
 end

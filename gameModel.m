@@ -6,11 +6,18 @@
 %Vs(side) - направление наших ворот Vs(3 - side) - других
 %field(1) - левый нижний угол поля, field(2) - правый верхний
 
-function ruls = gameModel(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY, status)
+function ruls = gameModel(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY, status, goalSizes)
     ActiveStartStatus = 1;
     PassiveStartStatus = 2;
     GameProcStatus = 3;
     StopGameStatus = 4;
+    keeperId = size(coms, 2);
+    
+    if nargin <= 11
+    	goalSizes = [1600, 3200];
+    end
+    
+    ballZone = getBallZone(field, goals(sd, :), Vs(sd, :), goals(3-sd, :), Vs(3-sd, :), goalSizes, ball);
     
     switch status
         case ActiveStartStatus
@@ -18,15 +25,50 @@ function ruls = gameModel(sd, coms, obsts, ball, goals, Vs, field, BState, BPosH
         case PassiveStartStatus
             ruls = gamePassiveStart(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY);
         case GameProcStatus
-            ruls = gameProc(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY);
+            ruls = gameProc(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY, ballZone);
         case StopGameStatus
             ruls = getEmptyRuls(size(coms, 2));
     end
     
     %Вратарь
     if status ~= StopGameStatus
-        ruls(3) = GoalKeeperOnLine(coms(sd, 3), goals(sd, :) + Vs(sd, :) * 150, Vs(sd, :), BPosHX, BPosHY, BState.BStand, BState.BSpeed);
+    	if bitand(ballZone, 2) == 2 && BState.BStand 
+    		ruls(keeperId) = attack(coms(sd, keeperId), ball, coms(sd, 1).z, 2);
+    		ruls(keeperId).KickVoltage = 3;
+    	else
+       		ruls(keeperId) = GoalKeeperOnLine(coms(sd, keeperId), goals(sd, :) + Vs(sd, :) * 150, Vs(sd, :), BPosHX, BPosHY, BState.BStand, BState.BSpeed);
+       	end
     end
+end
+
+function res = getBallZone(field, ownG, ownV, oppG, oppV, goalSizes, ball)
+	res = uint8(0);
+	if ballInGameZone(ball, field)
+		res = bitxor(res, 1);
+	end
+	if ballInGoalZone(ownG, ownV, goalSizes, ball.z)
+		res = bitxor(res, 2);
+	end
+	if ballInGoalZone(oppG, oppV, goalSizes, ball.z)
+		res = bitxor(res, 4);
+	end
+end
+
+function res = ballInGoalZone(G, V, goalSizes, ball)
+	res = pntInZone(ball, getGoalZone(G, V, goalSizes));
+end
+
+function goalZone = getGoalZone(G, V, goalSizes)
+	ortV = [V(2), -V(1)];
+	goalZone = [G+goalSizes(1)*V-goalSizes(2)*ortV/2, G+goalSizes(2)*ortV/2];
+end
+
+function res = pntInZone(pnt, zone)
+	left = min(zone([1, 3]));
+	right = max(zone([1, 3]));
+	down = min(zone([2, 4]));
+	up = max(zone([2, 4]));
+	res = left <= pnt(1) && pnt(1) <= right && down <= pnt(2) && pnt(2) <= up;
 end
 
 function ruls = gameActiveStart(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY)
@@ -34,19 +76,31 @@ function ruls = gameActiveStart(sd, coms, obsts, ball, goals, Vs, field, BState,
     %где-то позади становится
     ruls = getEmptyRuls(size(coms, 2));
     oppV = Vs(3 - sd, :);
+    ballAttackDist = 120;
     %id = (sd-1)*size(coms,2) + 1; 
-    if inHalfStrip(coms(sd, 1).z, ball.z, oppV, 30)
-        ruls(1) = MoveToLinear(coms(sd, 1), ball.z, 0, 25, 0);
+    if inHalfStrip(coms(sd, 1).z, ball.z, oppV, 50)
+    	%disp('k1');
+        ruls(1) = MoveToConstAcc(coms(sd, 1), ball.z, 0, 50);
     else
-        ruls(1) = MoveToWithFastBuildPath(coms(sd, 1), ball.z + oppV * 200, 0, obsts); 
+    	%disp('k2');
+        ruls(1) = MoveToWithFastBuildPath(coms(sd, 1), ball.z + oppV * 200, 100, obsts); 
     end
-    rotRul = RotateToLinear(coms(sd, 1), ball.z, 3, 10, 0.1);
-    ruls(1).SpeedR = rotRul.SpeedR;
-    ruls(1).AutoKick = 2;
+    if norm([ruls(1).SpeedX, ruls(1).SpeedY]) < 40
+    	rotRul = RotateToLinear(coms(sd, 1), ball.z - oppV * 500, 5, 15, 0.03);
+    	ruls(1).SpeedR = rotRul.SpeedR;
+    end
+    if r_dist_points(coms(sd, 1).z, ball.z) < ballAttackDist
+    	ruls(1).AutoKick = 2;
+    	ruls(1).KickVoltage = 3;
+    end;
     
-    ruls(2) = MoveToWithFastBuildPath(coms(sd, 2), ball.z + oppV * 500, 50, obsts);
-    rotRul = RotateToLinear(coms(sd, 2), ball.z, 3, 10, 0.1);
-    ruls(2).SpeedR = rotRul.SpeedR;
+    %disp(ball.z);
+    %disp(obsts);
+    ruls(2) = MoveToWithFastBuildPath(coms(sd, 2), oppV * 1500, 100, obsts);
+    if norm([ruls(2).SpeedX, ruls(2).SpeedY]) < 40
+    	rotRul = RotateToLinear(coms(sd, 2), ball.z, 5, 15, 0.03);
+    	ruls(2).SpeedR = rotRul.SpeedR;
+   	end
 end
 
 function ruls = gamePassiveStart(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY)
@@ -60,24 +114,28 @@ function ruls = gamePassiveStart(sd, coms, obsts, ball, goals, Vs, field, BState
     if r_dist_points(coms(sd, 1).z, pnt) > bigDist || r_dist_points(coms(sd, 2).z, pnt) > bigDist
         ruls(1) = MoveToWithFastBuildPath(coms(sd, 1), pnt, 0, obsts);
         ruls(2) = MoveToWithFastBuildPath(coms(sd, 2), pnt, 0, obsts);
-    elseif r_dist_points(coms(sd, 1).z, pntL) < r_dist_points(coms(sd, 1).z, pntR)
-        ruls(1) = MoveToLinear(coms(sd, 1), pntL, 1/750, 20, 10);
-        ruls(2) = MoveToLinear(coms(sd, 2), pntR, 1/750, 20, 10);
     else
-        ruls(1) = MoveToLinear(coms(sd, 1), pntR, 1/750, 20, 10);
-        ruls(2) = MoveToLinear(coms(sd, 2), pntL, 1/750, 20, 10);
+		if r_dist_points(coms(sd, 1).z, pntL) < r_dist_points(coms(sd, 1).z, pntR)
+		    ruls(1) = MoveToConstAcc(coms(sd, 1), pntL, 0, 0);
+		    ruls(2) = MoveToConstAcc(coms(sd, 2), pntR, 0, 0);
+		else
+		    ruls(1) = MoveToConstAcc(coms(sd, 1), pntR, 0, 0);
+		    ruls(2) = MoveToConstAcc(coms(sd, 2), pntL, 0, 0);
+		end
+		rotRul = RotateToLinear(coms(sd, 1), ball.z, 5, 20, 0.03);
+		ruls(1).SpeedR = rotRul.SpeedR;
+		rotRul = RotateToLinear(coms(sd, 2), ball.z, 5, 20, 0.03);
+		ruls(2).SpeedR = rotRul.SpeedR;
     end
-    rotRul = RotateToLinear(coms(sd, 1), ball.z, 3, 10, 0.1);
-    ruls(1).SpeedR = rotRul.SpeedR;
-    rotRul = RotateToLinear(coms(sd, 2), ball.z, 3, 10, 0.1);
-    ruls(2).SpeedR = rotRul.SpeedR;
 end
 
-function ruls = gameProc(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY)
+function ruls = gameProc(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY, ballZone)
+    persistent dis disLastUpdTime;
+    global curTime;
     ruls = getEmptyRuls(size(coms, 2));
     %распределяем роли
     activeId = getAttacker(coms(sd, :), ball);
-    passiveId = 3 - activeId;
+    passiveId = mod(activeId, 6)+1;
     os = 3-sd;
     oPassiveId = (sd-1)*size(coms,2) + activeId; 
     lD = (os-1)*size(coms,2) + 1;
@@ -86,27 +144,60 @@ function ruls = gameProc(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX
     height = abs(field(1, 1) - field(2, 1));
     width = abs(field(1, 2) - field(2, 2));
     rV = [Vs(sd, 2), -Vs(sd, 1)];
-    if activeId == 1
-        P = goals(sd, :) + Vs(sd, :) * height * 0.5 + rV * width * 0.4;
-    else
-        P = goals(sd, :) + Vs(sd, :) * height * 0.8 - rV * width * 0.4;
-    end
+    P = getPassPoints(goals(sd, :), Vs(sd, :));
+	pAttackers = getAgentsPos(coms(sd, [1:activeId-1, activeId+1:size(coms, 2)-1]));
+	%disp(activeId);
+	if isempty(dis)
+		dis = zeros(2, 4);
+	end
+	if dis(sd, 1) == 0 || curTime - disLastUpdTime > 0.3
+		AD = minMaxEdgeBFAD(pAttackers, P);
+        dis(sd, :) = AD.getDistribution;
+		disLastUpdTime = curTime;
+	end
     %высчитываем управление
-    if ballInGameZone(ball, field)
-        ruls(activeId) = activeAttackRole(coms(sd, activeId), coms(sd, passiveId), ball, coms(os, :), obsts(lD:rD, :), goals(os, :), Vs(os, :));
-        ruls(passiveId) = passiveAttackRole(coms(sd, passiveId), ball, goals(os, :), Vs(os, :), P, obsts([1:oPassiveId-1, oPassiveId+1:size(obsts, 1)], :));
+    if ballZone == 1
+        ruls(activeId) = activeAttackRole(coms(sd, activeId), coms(sd, [1:activeId-1, activeId+1:size(coms, 2)-1]), ball, coms(os, :), obsts(lD:rD, :), goals(os, :), Vs(os, :));
+        %ruls(passiveId) = passiveAttackRole(coms(sd, passiveId), ball, goals(os, :), Vs(os, :), P, obsts([1:oPassiveId-1, oPassiveId+1:size(obsts, 1)], :));
+        j = 1;
+        for k = [1: activeId-1, activeId+1:size(coms, 2)-1]
+        	ruls(k) = passiveAttackRole(coms(sd, k), ball, goals(os, :), Vs(os, :), P(dis(sd, j), :), obsts);
+        	j = j + 1;
+        end
+    elseif bitand(ballZone, 2) == 2
+    	ruls(activeId) = MoveToWithFastBuildPath(coms(sd, activeId), [0, 0], 100, obsts); 
+    elseif bitand(ballZone, 4) == 4
+    	ruls(activeId) = Crul(0, 0, 0, 0, 0);
     end
 end
 
 function res = getAttacker(com, ball)
-    if (r_dist_points(com(1).z, ball.z) < r_dist_points(com(2).z, ball.z))
-        res = 1;
-    else
-        res = 2;
-    end
+	res = 1;
+	for k = 2: size(com, 2) - 1
+		if (r_dist_points(com(res).z, ball.z) > r_dist_points(com(k).z, ball.z))
+		    res = k;
+		end
+	end
 end
 
-function rul = activeAttackRole(agent, friend, ball, oppCom, oppObst, oppG, oppV)
+function pnts = getPassPoints(G, V)
+	ortV = [V(2), -V(1)];
+	pnts = [
+		G + 8000 * V - ortV * 3000;
+		G + 8000 * V + ortV * 3000;
+		G + 2500 * V - ortV * 300;
+		G + 2500 * V + ortV * 300
+	];
+end
+
+function agentsPos = getAgentsPos(agents)
+	agentsPos = zeros(size(agents, 1), 2);
+	for k = 1: size(agents, 2)
+		agentsPos(k, :) = agents(k).z;
+	end
+end
+
+function rul = activeAttackRole(agent, friends, ball, oppCom, oppObst, oppG, oppV)
     persistent timeDetermined;
     persistent wasDetermined;
     passSegLen = 20;
@@ -124,10 +215,14 @@ function rul = activeAttackRole(agent, friend, ball, oppCom, oppObst, oppG, oppV
         wasDetermined = true;
     end
     
+    agent.isBallInside = inRect(ball.z, agent.z, dir, 30, 120);
+    %disp('is ball inside');
+    %disp(agent.isBallInside);
+    
     %Если можем хорошо ударить по воротам, то бьём
     if checkDir(dir, ball, oppObst, G, oppV) && agent.isBallInside
-        disp('shoot');
-        rul = Crul(0, 0, 1, 0, 0);
+        %disp('shoot');
+        rul = Crul(10, 0, 1, 0, 0);
     else
         [ownerId, own] = getBallOppOwner(ball, oppCom, ownerDist);
         %Если какой-то робот противника слишком близко приблизился к мячу
@@ -135,23 +230,15 @@ function rul = activeAttackRole(agent, friend, ball, oppCom, oppObst, oppG, oppV
         %процедуры по подъезду и прицеливанию для удара по воротам
         %disp(own && inHalfPlane(oppCom(ownerId).z, agent.z - dir * 200, dir));
         if own && inHalfPlane(oppCom(ownerId).z, agent.z - dir * 200, dir)
-            vec = ball.z - oppCom(ownerId).z;
-            vec = vec / norm(vec);
-            if  r_dist_points(agent.z, ball.z) < smallDist
-                disp('stealBall');
-                rul = stealBall(agent, ball.z, oppCom(ownerId), oppObst);
-            else
-                disp('hold dist');
-                rul = MoveToLinear(agent, ball.z + vec * 400, 0, 30, 30);
-                rotRul = RotateToLinear(agent, ball.z, 3, 10, 0.1);
-                rul.SpeedR = rotRul.SpeedR;
-            end
+            disp('stealBall');
+           	rul = stealBall(agent, ball.z, oppCom(ownerId), oppObst);
         else
-            disp('take aim');
-            if inHalfStrip(friend.z, agent.z, dir, 70) && agent.isBallInside
-                disp('pass');
+            %disp('take aim');
+            if findRobotsOnStrip(getOpenFriends(friends, oppCom, agent), agent.z, dir, 1500, 400) && agent.isBallInside
+                %disp('pass');
                 %Если смотрим на сокомандника и можем ударить, делаем это
-                rul = Crul(0, 0, 0, 0, 1);
+                rul = Crul(10, 0, 0, 0, 1);
+                rul.KickVoltage = 3;
             elseif r_dist_points(agent.z, ball.z) < ownerDist && inHalfStrip(ball.z, agent.z, dir, 70)
                 %здесь начнутся проблемы когда добавим вратарей
                 [rul, isDetermined] = optDirGoalAttack(agent, ball, oppCom, G, oppV);
@@ -169,16 +256,54 @@ function rul = activeAttackRole(agent, friend, ball, oppCom, oppObst, oppG, oppV
                 if ~wasDetermined
                     %если ворота не просматриваются, то делаем пас
                     %сокоманднику верхним ударом
+                    friend = getNearestOpenFriend(friends, oppCom, agent, dir);
                     rul = attack(agent, ball, friend.z, 2);
                 end
             else
-                disp('tuti');
+                %disp('tuti');
                 rul = MoveToWithFastBuildPath(agent, ball.z, 0, oppObst);
                 rotRul = RotateToLinear(agent, ball.z, 3, 10, 0.1);
                 rul.SpeedR = rotRul.SpeedR;
             end
         end
     end
+end
+
+function res = getNearestOpenFriend(friends, oppCom, agent, dir)
+	ang = 2*pi;
+	res = friends(randi(size(friends, 2)));
+	for friend = getOpenFriends(friends, oppCom, agent)
+		curAng = abs(getAngle(friends(1).z-agent.z, dir));
+		if curAng <= ang
+			res = friend;
+			and = curAng;
+		end
+	end
+end
+
+function res = getOpenFriends(friends, oppCom, agent)
+	thresholdAng = pi/12;
+	res = [];
+	for friend = friends
+		dir = normir(friend.z - agent.z);
+		if ~findRobotOnSector(oppCom, agent.z, dir, thresholdAng)
+			res = [res, friend];
+		end
+	end
+end
+
+function res = findRobotsOnStrip(robots, origin, dir, gap, width)
+	res = false;
+	for robot = robots
+		res = res || inHalfStrip(robot.z, origin + dir * gap, dir, width);
+	end
+end
+
+function res = findRobotOnSector(robots, origin, dir, thresholdAng)
+	res = false;
+	for robot = robots
+		res = res || abs(getAngle(robot.z-origin, dir)) < thresholdAng;
+	end
 end
 
 function rul = passiveAttackRole(agent, ball, oppG, oppV, P, obsts)
@@ -208,7 +333,7 @@ function res = checkDir(dir, ball, oppObst, oppG, oppV)
             break;
         end
     end
-    disp(attackDirectQuality(dir, ball.z, oppObst, R, k));
+    %disp(attackDirectQuality(dir, ball.z, oppObst, R, k));
     res = res && attackDirectQuality(dir, ball.z, oppObst, R, k) < 0;
 end
 

@@ -12,7 +12,7 @@ function [rul] = MoveToConstAcc(agent, aimPoint, goalSpeed, vicinity, maxSpeed, 
     end
     function [Speed] = linearSpeedFunction(dist)
         if (dist > vicinity)
-            Speed = min(goalSpeed + 20*sqrt(2*acc*dist/1000), maxSpeed);
+            Speed = min(goalSpeed + 18*sqrt(2*acc*dist/1000), maxSpeed);
         else
             Speed = 0;
         end

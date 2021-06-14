@@ -1,25 +1,41 @@
 function rul = attack(agent, ball, aim, kickType)
+	global curTime;
+	persistent states;
+	kickTimeThreshold = 300/1000;
+	if isempty(states)
+		states = zeros(32, 2);
+	end
     if nargin == 3
         %forward kick is default
         kickType = 1;
     end
     if (isState1(agent.z, ball.z))
-        rul = MoveToWithRotation(agent, ball.z, ball.z, 1/1000, 20, 0, 2, 20, 0, 0, 0.1, false);
+        %rul = MoveToWithRotation(agent, ball.z, ball.z, 1/1000, 20, 0, 2, 20, 0, 0, 0.1, false);
+        rul = MoveToConstAcc(agent, ball.z, 0, 200);
+        rotRul = RotateToLinear(agent, ball.z, 3, 10, 0.1);
+        rul.SpeedR = rotRul.SpeedR;
     else
         error_ang = errorAng(agent.z, ball.z, aim); 
-        if (isState2(agent.z, ball.z, aim) && isState3(agent.z, agent.ang, aim, 0.1))
+        if (isState2(agent.z, ball.z, aim) && isState3(agent.z, agent.ang, aim, 0.05))
             disp('st2');
-            rul = goAroundPoint(agent, ball.z, 120, 1000 * sign(error_ang), 5, 20 + 8 * abs(error_ang)); 
+			rul = goAroundPoint(agent, ball.z, 150, 1000 * sign(error_ang), 5, 5 + 2 * abs(error_ang)); 
         else 
             disp('st3');
-            rul = MoveToWithRotation(agent, ball.z, aim, 0, 25, 0, 5, 5, 0, 0, 0, false);
-%         else
-%             disp('st4');
-%             rul = MoveToWithRotation(agent, ball.z, aim, 0, 25, 0, 2, 9, 0, 0, 0.01, false);
-%             rul.AutoKick = kickType;
+            %rul = MoveToWithRotation(agent, ball.z, aim, 0, 25, 0, 5, 5, 0, 0, 0, false);
+            rul = MoveToConstAcc(agent, ball.z, 5, 50, 10, 0.3);
+			rotRul = RotateToLinear(agent, aim, 3, 15, 0);
+			rul.SpeedR = rotRul.SpeedR;
         end
     end
-    if ~isState3(agent.z, agent.ang, aim, 0.02)
+    if ~isState3(agent.z, agent.ang, aim, 0.05)
+    	if states(agent.id, 1) == 0
+    		states(agent.id, 1) = 1;
+    		states(agent.id, 2) = curTime;
+    	end
+   	else
+   		states(agent.id, 1) = 0;
+    end
+    if ~isState3(agent.z, agent.ang, aim, 0.02) || states(agent.id, 1) == 1 && curTime - states(agent.id, 2) > kickTimeThreshold
     	disp('kick');
         rul.AutoKick = kickType;
     end
@@ -91,7 +107,7 @@ end
 
 % Вращение вокруг точки до прицеливания
 function res = isState2(agent_pos, ball_pos, aim)
-    res = ((r_dist_point_line(ball_pos, agent_pos, aim) > 23) || (scalMult(aim - agent_pos, ball_pos - agent_pos) < 0));
+    res = ((r_dist_point_line(ball_pos, agent_pos, aim) > 25) || (scalMult(aim - agent_pos, ball_pos - agent_pos) < 0));
 end
 
 % Доворот до цели

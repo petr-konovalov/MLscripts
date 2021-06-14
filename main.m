@@ -1,6 +1,6 @@
 %% MAIN START HEADER
 
-global Blues Yellows Balls Rules FieldInfo RefState RefCommandForTeam RefPartOfFieldLeft RP PAR Modul activeAlgorithm obstacles gameStatus simulator oldRules
+global Blues Yellows Balls Rules FieldInfo RefState RefCommandForTeam RefPartOfFieldLeft RP PAR Modul activeAlgorithm obstacles gameStatus simulator oldRules oldTime curTime
 
 if isempty(RP)
     addpath tools RPtools MODUL
@@ -75,6 +75,15 @@ if isempty(RP.Ball.z)
 	RP.Ball.y = oldBallPos(2);
 end
 
+
+for k = 1: numel(Balls)/3
+	if Balls(k, 1) ~= 0 && norm(Balls(k, 2:3)-oldBallPos) < norm(RP.Ball.z-oldBallPos)
+		RP.Ball.z = Balls(k, 2: 3);
+	end
+end
+RP.Ball.x = RP.Ball.z(1);
+RP.Ball.y = RP.Ball.z(2);
+
 oldBallPos = RP.Ball.z;
 
 border1 = [-2000 -1500];
@@ -91,13 +100,19 @@ if isempty(obstacles) || size(obstacles, 1) ~= commonSize
 end
         
 radius = 250;
+radiusMove = 400;
+epsMove = 300;
 eps = 10;
 
 BCnt = numel(BlueIDs);
 for k = 1: BCnt;
     atackerid = BlueIDs(k);
-    if RP.Blue(atackerid).I ~= 0 && (r_dist_points(RP.Blue(atackerid).z, [obstacles(k, 1), obstacles(k, 2)]) > eps || abs(radius - obstacles(k, 3)) > eps)
+    if RP.Blue(atackerid).I ~= 0 && (r_dist_points(RP.Blue(atackerid).z, [obstacles(k, 1), obstacles(k, 2)])/(curTime - oldTime) > epsMove)
         obstacles(k, 1) = RP.Blue(atackerid).x;
+        obstacles(k, 2) = RP.Blue(atackerid).y;
+        obstacles(k, 3) = radiusMove;
+    elseif RP.Blue(atackerid).I ~= 0 && (r_dist_points(RP.Blue(atackerid).z, [obstacles(k, 1), obstacles(k, 2)]) > eps || abs(radius - obstacles(k, 3)) > eps || curTime - oldTime > 5)
+    	obstacles(k, 1) = RP.Blue(atackerid).x;
         obstacles(k, 2) = RP.Blue(atackerid).y;
         obstacles(k, 3) = radius;
     end
@@ -105,12 +120,17 @@ end
 
 for k = 1: numel(YellowIDs)
     atackerid = YellowIDs(k);
-    if RP.Yellow(atackerid).I ~= 0 && r_dist_points(RP.Yellow(atackerid).z, [obstacles(k + BCnt, 1), obstacles(k + BCnt, 2)]) > eps
+    if RP.Yellow(atackerid).I ~= 0 && r_dist_points(RP.Yellow(atackerid).z, [obstacles(k+BCnt, 1), obstacles(k+BCnt, 2)])/(curTime - oldTime) > epsMove
         obstacles(k + BCnt, 1) = RP.Yellow(atackerid).x;
+        obstacles(k + BCnt, 2) = RP.Yellow(atackerid).y;
+        obstacles(k + BCnt, 3) = radiusMove;
+    elseif RP.Yellow(atackerid).I ~= 0 && (r_dist_points(RP.Yellow(atackerid).z, [obstacles(k+BCnt, 1), obstacles(k+BCnt, 2)]) > eps || abs(radius - obstacles(k+BCnt, 3)) > eps || curTime - oldTime > 5)
+    	obstacles(k + BCnt, 1) = RP.Yellow(atackerid).x;
         obstacles(k + BCnt, 2) = RP.Yellow(atackerid).y;
         obstacles(k + BCnt, 3) = radius;
     end    
 end
+%disp(obstacles);
 
 %RP.Blue(4).rul = kickBall(RP.Blue(4), RP.Ball, RP.Blue(7).z, kickBallPreparation());
 %RP.Blue(4).rul = RotateToPID(RP.Blue(4), RP.Ball.z, 3, 10, 0.1, -30, 0.01);
@@ -137,10 +157,6 @@ global BPosHX; %history of ball coordinate X
 global BPosHY; %history of ball coordinate Y
 global ballFastMoving;
 global ballSaveDir;
-global oldTime;
-global curTime;
-curTime = cputime();
-%disp(curTime);
 
 if isempty(oldTime)
 	oldTime = curTime;
@@ -181,46 +197,19 @@ if simulator
     end
 end
 
-%global gameStatus;
-%gameStatus = 0;
+global gameStatus yellowIsActive;
+if curTime - oldTime > 1	
+	gameStatus = 0;
+end
+yellowIsActive = true;
+disp([RefState, RefCommandForTeam, RefPartOfFieldLeft]);
+%driblerTest;
 %game3by3Handler;
+%fixUnusedRobots;
+%RP.Blue(1).rul = attack(RP.Blue(1), RP.Ball, [-6000, 0], 2);
+%moveToWithFBPTest;
+%RP.Blue(1).rul = MoveToWithFastBuildPath(RP.Blue(1), [0, 0], 50, obstacles);
 
-aim = [-3500, -2000];
-RP.Blue(1).rul = MoveToWithFastBuildPath(RP.Blue(1), aim, 50, obstacles);
-pntsb = [
-	-2000, 200;
-	-1600, -600;
-	-1200, 1000;
-	-800, -1200;
-	-400, 400;
-	0, 700;
-	400, 700;
-	800, -300;
-	1200, 400;
-	1600, 600;
-	2000, -400
-]*1.9;
-for k = 2: numel(pnts)/2
-	RP.Blue(k).rul = MoveToConstAcc(RP.Blue(k), pntsb(k, :), 0, 50);
-end
-pntsy = [
-	-1800, -800;
-	-1400, 400;
-	-1000, 500;
-	-600, -800;
-	-200, 0;
-	200, 200;
-	600, 100;
-	1000, 400;
-	1400, -600;
-	1800, 200;
-	2200, -400
-]*1.9;
-for k = 1: numel(pnts)/2
-	RP.Yellow(k).rul = MoveToConstAcc(RP.Yellow(k), pntsy(k, :), 0, 50);
-end
-%rotRul = RotateToLinear(RP.Blue(1), aim, 0, 5, 0);
-%RP.Blue(1).rul.SpeedR = rotRul.SpeedR;
 
 %RP.Blue(11).rul = MoveToLinear(RP.Blue(11), [-1000, 2000], 0, 10, 50);
 %RP.Blue(11).rul = RotateToLinear(RP.Blue(11), [0, 0], 0, 5, 0);

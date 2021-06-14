@@ -5,10 +5,10 @@ function rul = stealBall(agent, BPEstim, ballOwner, obstacles)
     persistent pushDir;
     persistent spinSpeed;
     if (isempty(pushDir))
-        pushDir = zeros(1, 20);
+        pushDir = zeros(1, 32);
     end
     if (isempty(spinSpeed))
-       spinSpeed = 15 * ones(1, 20);
+       spinSpeed = 15 * ones(1, 32);
     end
     agentDir = [cos(agent.ang), sin(agent.ang)];
     vec = BPEstim - ballOwner.z;
@@ -23,7 +23,7 @@ function rul = stealBall(agent, BPEstim, ballOwner, obstacles)
         disp('state 2');
         %change pushing direction
         if r_dist_points(agent.z, BPEstim) > 120%~agent.isBallInside
-            rul = MoveToLinear(agent, BPEstim, 0, 15, 0);
+            rul = MoveToConstAcc(agent, BPEstim, 0, 0);%MoveToLinear(agent, BPEstim, 0, 15, 0);
             rotRul = RotateToLinear(agent, BPEstim, 3, 10, 0.1);
             rul.SpeedR = rotRul.SpeedR;
         else
@@ -34,10 +34,11 @@ function rul = stealBall(agent, BPEstim, ballOwner, obstacles)
             rul = Crul(8, 8 * pushDir(agent.id), 0, spinSpeed(agent.id) * pushDir(agent.id), 0);
         end
     else
-        disp('state 3');
+        %disp('state 3');
         %Здесь надо будет добавить проверку:
         %Если нет опасности выпнуть из поля или по своим воротам, то пинаем
-        %rul = Crul(0, 0, 0, 0, 1);
+        rul = Crul(0, 0, 0, 0, 1);
+        rul.KickVoltage = 1;
         %Иначе просто фигачим вперёд
         rul = Crul(15, 12 * pushDir(agent.id), 0, 2 * pushDir(agent.id), 0);
         rotRul = RotateToLinear(agent, BPEstim, 3, 10, 0.1);

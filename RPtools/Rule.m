@@ -43,14 +43,14 @@ end
 if (KickVoltage < 0)
     KickVoltage = 0;
 end
-if (abs(KickVoltage) > 15)
+if (KickVoltage > 15)
     KickVoltage = 15;
 end
-if (SpinnerSpeed < 0)
+if (SpinnerSpeed < 0 || ~EnableSpinner)
     SpinnerSpeed = 0;
 end
-if (abs(SpinnerSpeed) > 15)
-    SpinnerSpeed = 15;
+if (SpinnerSpeed > 1000000000)
+    SpinnerSpeed = 1000000000;
 end
 if (AutoKick < 0)
     AutoKick = 0;
@@ -60,12 +60,12 @@ if (abs(AutoKick) > 2)
 end
 
 %% Make controls integer numbers
-SpeedX = fix(SpeedX);
-SpeedY = fix(SpeedY);
-SpeedR = fix(SpeedR);
-SpinnerSpeed = fix(SpinnerSpeed);
+%SpeedX = fix(SpeedX);
+%SpeedY = fix(SpeedY);
+%SpeedR = fix(SpeedR);
+%SpinnerSpeed = fix(SpinnerSpeed);
 AutoKick = fix(AutoKick);
-KickVoltage = fix(KickVoltage);
+%KickVoltage = fix(KickVoltage);
 
 %% Loading controls to Rules array
 global RP;
