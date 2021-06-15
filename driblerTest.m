@@ -13,8 +13,8 @@ RP.Ball.x = BPEstim(1);
 RP.Ball.y = BPEstim(2);
 %disp(BPEstim);
 
-if norm(RP.Blue(1).z - RP.Ball.z) < 80
-	RP.Blue(1).rul = Crul(0, 0, 0, 0, 0);
+if norm(RP.Blue(1).z - RP.Ball.z) < 100
+	RP.Blue(1).rul = Crul(10, 0, 0, 0, 0);
 else
 	RP.Blue(1).rul = attack(RP.Blue(1), RP.Ball, [0, 0]);
 	RP.Blue(1).rul.KickForward = 0;

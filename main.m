@@ -202,8 +202,10 @@ if curTime - oldTime > 1
 	gameStatus = 0;
 end
 yellowIsActive = true;
-disp([RefState, RefCommandForTeam, RefPartOfFieldLeft]);
-%driblerTest;
+disp('gogo');
+RP.Blue(1).rul = attack(RP.Blue(1), RP.Ball, [-6000, 0]);
+
+driblerTest;
 %game3by3Handler;
 %fixUnusedRobots;
 %RP.Blue(1).rul = attack(RP.Blue(1), RP.Ball, [-6000, 0], 2);
