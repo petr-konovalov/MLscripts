@@ -46,31 +46,43 @@ end
 ruls1 = [Crul(0, 0, 0, 0, 0); Crul(0, 0, 0, 0, 0); Crul(0, 0, 0, 0, 0); Crul(0, 0, 0, 0, 0); Crul(0, 0, 0, 0, 0); Crul(0, 0, 0, 0, 0)];
 ruls2 = [Crul(0, 0, 0, 0, 0); Crul(0, 0, 0, 0, 0); Crul(0, 0, 0, 0, 0); Crul(0, 0, 0, 0, 0); Crul(0, 0, 0, 0, 0); Crul(0, 0, 0, 0, 0)];
 
-switch gameStatus
-	case 0
-		[ruls1, ruls2] = goToGameStartingConfiguration(coms, G1, V1, G2, V2, width, RP.Ball, obstacles);
-	case 1 %Start game. First team is playing
-	    [ruls1, ruls2] = startGame(center, coms, obsts, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, centerRadius);
-	case 2 %Start game. Second team is playing
-	    [ruls1, ruls2] = startGame(center, coms, obsts, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, centerRadius);
-	case 3 %normal game
-	    ruls1 = gameModel(1, coms, obsts, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, 3); 
-	    ruls2 = gameModel(2, coms, obsts, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, 3); 
-	case 4 %stop game
-	    ruls1 = gameModel(1, coms, obsts, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, 4); 
-	    ruls2 = gameModel(2, coms, obsts, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, 4); 
-	case 5 %move ball to center
-	    ruls = MoveBallToCenter([RP.Yellow(cId([1, 2, 3, 4, 5])), RP.Blue(cId([7, 8, 9, 10, 11]))], RP.Ball, center, 50, obstacles);
-	    ruls1(1) = ruls(1);
-	    ruls1(2) = ruls(2);
-	    ruls1(3) = ruls(3);
-	    ruls1(4) = ruls(4);
-	    ruls1(5) = ruls(5);
-	    ruls2(1) = ruls(6);
-	    ruls2(2) = ruls(7);
-	    ruls2(3) = ruls(8);
-	    ruls2(4) = ruls(9);
-	    ruls2(5) = ruls(10);
+%RefCommandForTeam == 1 -- for blue team
+%RefCommandForTeam == 2 -- for yellow team
+%RefCommandForTeam == 0 -- for all teams
+
+haltCommand = 0;
+stopCommand = 1;
+forceStartCommand = 2;
+timeoutCommand = 3;
+endGameCommand = 4;
+kickoffCommand = 5;
+normalStartCommand = 6;
+penaltyCommand = 7;
+directKickCommand = 9;
+indirectKickCommand = 10;
+ballPlacementCommand = 11;
+
+switch RefState
+	case haltCommand
+		[ruls1, ruls2] = haltCommandHandler();
+	case stopCommand
+		[ruls1, ruls2] = stopCommandHandler();
+	case forceStartCommand
+		[ruls1, ruls2] = forceStartCommandHandler();
+	case timeoutCommand
+		[ruls1, ruls2] = timeoutCommandHandler();
+	case endGameCommand
+		[ruls1, ruls2] = endGameCommandHandler();
+	case normalStartCommand
+		[ruls1, ruls2] = normalStartCommandHandler();
+	case penaltyCommand
+		[ruls1, ruls2] = penaltyCommandHandler();
+	case directKickCommand
+		[ruls1, ruls2] = directCommandHandler();
+	case indirectKickCommand
+		[ruls1, ruls2] = indirectCommandHandler();
+	case ballPlacementCommand
+		[ruls1, ruls2] = ballPlacementCommandHandler();
 end
 
 copyRulsToRobotsRul(ruls1, ruls2);

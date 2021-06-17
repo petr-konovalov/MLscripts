@@ -183,10 +183,10 @@ end
 function pnts = getPassPoints(G, V)
 	ortV = [V(2), -V(1)];
 	pnts = [
-		G + 8000 * V - ortV * 3000;
-		G + 8000 * V + ortV * 3000;
-		G + 2500 * V - ortV * 300;
-		G + 2500 * V + ortV * 300
+		G + 6000 * V - ortV * 2000;
+		G + 6000 * V + ortV * 2000;
+		G + 2000 * V - ortV * 300;
+		G + 2000 * V + ortV * 300
 	];
 end
 

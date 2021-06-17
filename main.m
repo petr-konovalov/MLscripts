@@ -197,16 +197,21 @@ if simulator
     end
 end
 
-global gameStatus yellowIsActive;
+global gameStatus yellowIsActive blueIsActive leftCommandIsBlue;
+
 if curTime - oldTime > 1	
 	gameStatus = 0;
 end
+ourCommandIsBlue = true;
+leftCommandIsBlue = true;
 yellowIsActive = true;
-disp('gogo');
-RP.Blue(1).rul = attack(RP.Blue(1), RP.Ball, [-6000, 0]);
+blueIsActive = true;
+ourTeamIsKick = ourCommandIsBlue && RefCommandForTeam == 1 || ~ourCommandIsBlue && RefCommandForTeam == 2;
+disp([RefState, RefPartOfFieldLeft, RefCommandForTeam]);
+%RP.Blue(1).rul = attack(RP.Blue(1), RP.Ball, [-6000, 0]);
 
-driblerTest;
-%game3by3Handler;
+game3by3Handler;
+%RP.Blue(1).rul = Crul(0, 0, 0, 20, 0);
 %fixUnusedRobots;
 %RP.Blue(1).rul = attack(RP.Blue(1), RP.Ball, [-6000, 0], 2);
 %moveToWithFBPTest;
