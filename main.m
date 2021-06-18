@@ -91,8 +91,8 @@ border2 = [2000 1500];
 point1 = [-1.7683   -0.2785] * 1000;
 point2 = [1500 800];
 
-BlueIDs = 1:11;
-YellowIDs = 1:11;
+BlueIDs = 1:6;
+YellowIDs = 1:6;
 
 commonSize = numel(BlueIDs) + numel(YellowIDs);
 if isempty(obstacles) || size(obstacles, 1) ~= commonSize
@@ -197,21 +197,20 @@ if simulator
     end
 end
 
-global gameStatus yellowIsActive blueIsActive leftCommandIsBlue;
+global gameStatus yellowIsActive blueIsActive leftTeamIsBlue;
 
 if curTime - oldTime > 1	
 	gameStatus = 0;
 end
 ourCommandIsBlue = true;
-leftCommandIsBlue = true;
+leftTeamIsBlue = false;
 yellowIsActive = true;
 blueIsActive = true;
-ourTeamIsKick = ourCommandIsBlue && RefCommandForTeam == 1 || ~ourCommandIsBlue && RefCommandForTeam == 2;
+%ourTeamIsKick = ourCommandIsBlue && RefCommandForTeam == 1 || ~ourCommandIsBlue && RefCommandForTeam == 2;
 disp([RefState, RefPartOfFieldLeft, RefCommandForTeam]);
 %RP.Blue(1).rul = attack(RP.Blue(1), RP.Ball, [-6000, 0]);
 
-game3by3Handler;
-%RP.Blue(1).rul = Crul(0, 0, 0, 20, 0);
+game6by6Handler;
 %fixUnusedRobots;
 %RP.Blue(1).rul = attack(RP.Blue(1), RP.Ball, [-6000, 0], 2);
 %moveToWithFBPTest;

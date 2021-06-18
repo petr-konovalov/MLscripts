@@ -1,3 +1,3 @@
-function [ruls1, ruls2] = haltCommandHandler()
-
+function ruls = haltCommandHandler(coms)
+	ruls = getEmptyRuls(size(coms, 2));
 end

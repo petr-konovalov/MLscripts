@@ -14,7 +14,7 @@ function ruls = gameModel(sd, coms, obsts, ball, goals, Vs, field, BState, BPosH
     keeperId = size(coms, 2);
     
     if nargin <= 11
-    	goalSizes = [1600, 3200];
+    	goalSizes = [1000, 2000];
     end
     
     ballZone = getBallZone(field, goals(sd, :), Vs(sd, :), goals(3-sd, :), Vs(3-sd, :), goalSizes, ball);
@@ -54,23 +54,6 @@ function res = getBallZone(field, ownG, ownV, oppG, oppV, goalSizes, ball)
 	end
 end
 
-function res = ballInGoalZone(G, V, goalSizes, ball)
-	res = pntInZone(ball, getGoalZone(G, V, goalSizes));
-end
-
-function goalZone = getGoalZone(G, V, goalSizes)
-	ortV = [V(2), -V(1)];
-	goalZone = [G+goalSizes(1)*V-goalSizes(2)*ortV/2, G+goalSizes(2)*ortV/2];
-end
-
-function res = pntInZone(pnt, zone)
-	left = min(zone([1, 3]));
-	right = max(zone([1, 3]));
-	down = min(zone([2, 4]));
-	up = max(zone([2, 4]));
-	res = left <= pnt(1) && pnt(1) <= right && down <= pnt(2) && pnt(2) <= up;
-end
-
 function ruls = gameActiveStart(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY)
     %один робот едет на центр и бьёт по мачу верхним ударом, другой
     %где-то позади становится
@@ -80,19 +63,19 @@ function ruls = gameActiveStart(sd, coms, obsts, ball, goals, Vs, field, BState,
     %id = (sd-1)*size(coms,2) + 1; 
     if inHalfStrip(coms(sd, 1).z, ball.z, oppV, 50)
     	%disp('k1');
-        ruls(1) = MoveToConstAcc(coms(sd, 1), ball.z, 0, 50);
+        ruls(1) = MoveToConstAcc(coms(sd, 1), ball.z, 0, 120, 10);
     else
     	%disp('k2');
-        ruls(1) = MoveToWithFastBuildPath(coms(sd, 1), ball.z + oppV * 200, 100, obsts); 
+        ruls(1) = MoveToWithFastBuildPath(coms(sd, 1), ball.z + oppV * 500, 100, obsts); 
     end
     if norm([ruls(1).SpeedX, ruls(1).SpeedY]) < 40
-    	rotRul = RotateToLinear(coms(sd, 1), ball.z - oppV * 500, 5, 15, 0.03);
+    	rotRul = RotateToLinear(coms(sd, 1), ball.z - oppV * 500, 3, 10, 0.01);
     	ruls(1).SpeedR = rotRul.SpeedR;
     end
     if r_dist_points(coms(sd, 1).z, ball.z) < ballAttackDist
     	ruls(1).AutoKick = 2;
-    	ruls(1).KickVoltage = 3;
-    end;
+    	ruls(1).KickVoltage = 4;
+    end
     
     %disp(ball.z);
     %disp(obsts);
@@ -107,7 +90,7 @@ function ruls = gamePassiveStart(sd, coms, obsts, ball, goals, Vs, field, BState
     ruls = getEmptyRuls(size(coms, 2));
     oppV = Vs(3 - sd, :);
     %id = (sd-1)*size(coms,2) + 1;
-    pnt = ball.z + oppV * 600;
+    pnt = ball.z + oppV * 800;
     pntL = pnt + [oppV(2), -oppV(1)] * 70;
     pntR = pnt - [oppV(2), -oppV(1)] * 70;
     bigDist = 300;
@@ -169,15 +152,6 @@ function ruls = gameProc(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX
     elseif bitand(ballZone, 4) == 4
     	ruls(activeId) = Crul(0, 0, 0, 0, 0);
     end
-end
-
-function res = getAttacker(com, ball)
-	res = 1;
-	for k = 2: size(com, 2) - 1
-		if (r_dist_points(com(res).z, ball.z) > r_dist_points(com(k).z, ball.z))
-		    res = k;
-		end
-	end
 end
 
 function pnts = getPassPoints(G, V)

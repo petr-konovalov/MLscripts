@@ -1,6 +1,6 @@
 function [ruls1, ruls2] = goToGameStartingConfiguration(coms, G1, V1, G2, V2, width, ball, obstacles, normalSpeed)
 	if nargin <= 8
-		normalSpeed = 10;
+		normalSpeed = 15;
 	end
 	ruls1 = getEmptyRuls(size(coms, 2));
 	ruls2 = getEmptyRuls(size(coms, 2));
@@ -20,16 +20,16 @@ function [ruls1, ruls2] = goToGameStartingConfiguration(coms, G1, V1, G2, V2, wi
 	Pnt(12, :) = G2 + V2 * 500;
 	for k = 1: 6
 	    if r_dist_points(coms(1, k).z, ball.z) > 500
-	    	ruls1(k)  = MoveToWithFastBuildPath(coms(1, k), Pnt(k, :), 90, obstacles, normalSpeed);
+	    	ruls1(k)  = MoveToWithFastBuildPath(coms(1, k), Pnt(k, :), 90, [obstacles; 0 0 700], normalSpeed);
 	    else
 	    	vec = normir(coms(1, k).z - ball.z)*1000;
-	    	ruls1(k)  = MoveToWithFastBuildPath(coms(1, k), coms(1, k).z + vec, 90, obstacles, normalSpeed);
+	    	ruls1(k)  = MoveToWithFastBuildPath(coms(1, k), coms(1, k).z + vec, 90, [obstacles; 0 0 700], normalSpeed);
 	    end	
 	    if r_dist_points(coms(2, k).z, ball.z) > 500
-	    	ruls2(k)  = MoveToWithFastBuildPath(coms(2, k), Pnt(k+6, :), 90, obstacles, normalSpeed);
+	    	ruls2(k)  = MoveToWithFastBuildPath(coms(2, k), Pnt(k+6, :), 90, [obstacles; 0 0 700], normalSpeed);
 	    else
 	    	vec = normir(coms(2, k).z - ball.z)*1000;
-	    	ruls2(k)  = MoveToWithFastBuildPath(coms(2, k), coms(2, k).z + vec, 90, obstacles, normalSpeed);
+	    	ruls2(k)  = MoveToWithFastBuildPath(coms(2, k), coms(2, k).z + vec, 90, [obstacles; 0 0 700], normalSpeed);
 	    end
 	end
 end
