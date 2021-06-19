@@ -8,7 +8,7 @@ function rul = stealBall(agent, BPEstim, ballOwner, obstacles)
         pushDir = zeros(1, 32);
     end
     if (isempty(spinSpeed))
-       spinSpeed = 15 * ones(1, 32);
+        spinSpeed = 15 * ones(1, 32);
     end
     agentDir = [cos(agent.ang), sin(agent.ang)];
     vec = BPEstim - ballOwner.z;

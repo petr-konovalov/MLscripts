@@ -1,28 +1,18 @@
-function ruls = directCommandHandler(sd, coms, ball, BPosHX, BPosHY, obstacles)
-	global curTime oldTime
-	persistent state;
-	ruls = getEmptyRuls(size(coms, 2));
-	ball = getFilteredBall(ball, BPosHX, BPosHY);
-	attackerId = getAttacker(coms(sd, :), ball)
-	attacker = coms(sd, attackerId);
-	if isempty(state) || norm(ball.z-attacker.z) > 1000 || curTime - oldTime > 1
-		state = 0;
-	end
-	switch state
-		case 0
-			ruls(attackerId) = 		
-		case 1
-				
+function ruls = directCommandHandler(sd, ks, coms, ball, BPosHX, BPosHY, BState, Gs, Vs, obstacles, goalSizes)
+	if sd == ks
+		ruls = freeKick(coms(sd, :), ball, getKickPoint(), BPosHX, BPosHY, obstacles);
+	else
+		keeperId = size(coms, 2);
+		ruls = passiveDirectBahaviour(sd, coms(:, 1:keeperId-1), ball, Gs, Vs, obstacles, goalSizes);
+		ruls(keeperId) = GoalKeeperOnLine(coms(sd, keeperId), Gs(sd, :) + Vs(sd, :) * 150, Vs(sd, :), BPosHX, BPosHY, BState.BStand, BState.BSpeed);
 	end
 end
 
-function ball = getFilteredBall(ball, BPosHX, BPosHY)
-	ball.z = stableBallFiltering(BPosHX, BPosHY);
-	ball.x = ball.z(1);
-	ball.y = ball.z(2);
+function ruls = passiveDirectBahaviour(sd, coms, ball, Gs, Vs, obstacles, goalSizes)
+	ruls = stopCommandHandler(sd, coms, ball, Gs, Vs, obstacles, goalSizes);
 end
 
-function pnt = getKickingPoint(attacker, ball)
-	pnt = ball.z + normir(ball.z) * 500;
+function pnt = getKickPoint()
+	pnt = [0, 0];
 end
 

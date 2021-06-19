@@ -1,7 +1,15 @@
-global RP gameStatus BPosHX BPosHY ballFastMoving ballSaveDir oldTime curTime obstacles leftTeamIsBlue ourCommandIsBlue gameStage kickOfTeam;
+global RP BPosHX BPosHY ballFastMoving ballSaveDir oldTime curTime obstacles leftTeamIsBlue ourCommandIsBlue gameState kickOfTeam prevRefState kickPoint;
 
-if isempty(gameStage) || curTime - oldTime > 1
-	gameStage = 0; %Pre first half
+if isempty(kickPoint)
+	kickPoint = [0, 0];
+end
+
+if isempty(prevRefState) || curTime - oldTime > 1 && RefState == 0
+	prevRefState = 0;	
+end
+
+if isempty(gameState) || curTime - oldTime > 1 && RefState == 0
+	gameState = 0; %Pre first half
 end
 
 [BState, BPosHX, BPosHY, BPEstim] = ballMovingManager(RP.Ball);
@@ -36,7 +44,7 @@ ruls = [getEmptyRuls(size(coms, 2))'; getEmptyRuls(size(coms, 2))'];
 %RefCommandForTeam == 2 -- for yellow team
 %RefCommandForTeam == 0 -- for all teams
 
-goalSizes = [1000, 2000];
+goalSizes = [1200, 2400];
 haltCommand = 0;
 stopCommand = 1;
 forceStartCommand = 2;
@@ -45,60 +53,114 @@ endGameCommand = 4;
 kickoffCommand = 5;
 normalStartCommand = 6;
 penaltyCommand = 7;
+penaltyCommandKick = 8; %????
 directKickCommand = 9;
 indirectKickCommand = 10;
 ballPlacementCommand = 11;
 
 sd = getOurCommandSd(leftTeamIsBlue, ourCommandIsBlue);
 os = 3-sd;
-disp(gameStage);
+disp(gameState);
 switch RefState
 	case haltCommand
-		if gameStage == 0
+		if gameState == 0
 			[ruls(1, :), ruls(2, :)] = goToGameStartingConfiguration(coms, G1, V1, G2, V2, width, RP.Ball, obstacles);			
 		else
+			gameState = 2;
 			ruls(1, :) = haltCommandHandler(coms);
 			ruls(2, :) = haltCommandHandler(coms);
 		end
 	case stopCommand
-		if gameStage == 0
+		if gameState == 0
 			[ruls(1, :), ruls(2, :)] = goToGameStartingConfiguration(coms, G1, V1, G2, V2, width, RP.Ball, obstacles);
 		else
+			gameState = 2;
 			ruls(1, :) = stopCommandHandler(1, coms, RP.Ball, [G1; G2], [V1; V2], obstacles, goalSizes);
 			ruls(2, :) = stopCommandHandler(2, coms, RP.Ball, [G1; G2], [V1; V2], obstacles, goalSizes);
 		end
 	case forceStartCommand
-		[ruls1, ruls2] = forceStartCommandHandler();
+		gameState = 2;
+		ruls(1, :) = gameModel(1, coms, obstacles, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, 3); 
+		ruls(2, :) = gameModel(2, coms, obstacles, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, 3); 
 	case timeoutCommand
-		[ruls1, ruls2] = timeoutCommandHandler();
+		ruls(1, :) = haltCommandHandler(coms);
+		ruls(2, :) = haltCommandHandler(coms);
 	case endGameCommand
-		[ruls1, ruls2] = endGameCommandHandler();
+		ruls(1, :) = haltCommandHandler(coms);
+		ruls(2, :) = haltCommandHandler(coms);
 	case kickoffCommand
-		gameStage = 1; %kickoff
-		disp([RefCommandForTeam, leftTeamIsBlue]);
+		gameState = 1;
 		kickOfTeam = getKickoffTeamSide(RefCommandForTeam, leftTeamIsBlue);
-		disp(kickOfTeam);
 		[ruls(1, :), ruls(2, :)] = goToGameStartingConfiguration(coms, G1, V1, G2, V2, width, RP.Ball, obstacles);
 	case normalStartCommand
-		if gameStage == 1
+		if gameState == 1 || gameState == 0
 			ruls(1, :) = kickoffCommandHandler(1, coms, obstacles, kickOfTeam, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY);
 			ruls(2, :) = kickoffCommandHandler(2, coms, obstacles, kickOfTeam, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY);	
 			if checkNormalStartCondition([0, 0], RP.Ball.z)
-				gameStage = 2;
+				gameState = 2;
 			end
-		elseif gameStage == 2
-			ruls(1, :) = gameModel(1, coms, obsts, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, 3); 
-			ruls(2, :) = gameModel(2, coms, obsts, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, 3); 
+		elseif gameState == 2
+			ruls(1, :) = gameModel(1, coms, obstacles, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, 3); 
+			ruls(2, :) = gameModel(2, coms, obstacles, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, 3); 
+		elseif gameState == 5
+			ruls(1, :) = penaltyCommandHandler(1, kickOfTeam, coms, RP.Ball, BPosHX, BPosHY, BState, [G1; G2], [V1; V2], obstacles, goalSizes, false);
+			ruls(2, :) = penaltyCommandHandler(2, kickOfTeam, coms, RP.Ball, BPosHX, BPosHY, BState, [G1; G2], [V1; V2], obstacles, goalSizes, false);
+			if checkNormalStartCondition(kickPoint, RP.Ball.z)
+				gameState = 2;
+			end
 		end
 	case penaltyCommand
-		[ruls1, ruls2] = penaltyCommandHandler();
+		gameState = 5;
+		kickPoint = stableBallFiltering(BPosHX, BPosHY);
+		kickOfTeam = getKickoffTeamSide(RefCommandForTeam, leftTeamIsBlue);
+		ruls(1, :) = penaltyCommandHandler(1, kickOfTeam, coms, RP.Ball, BPosHX, BPosHY, BState, [G1; G2], [V1; V2], obstacles, goalSizes, true);
+		ruls(2, :) = penaltyCommandHandler(2, kickOfTeam, coms, RP.Ball, BPosHX, BPosHY, BState, [G1; G2], [V1; V2], obstacles, goalSizes, true);
+	case penaltyCommandKick
+		if gameState == 5
+			ruls(1, :) = penaltyCommandHandler(1, kickOfTeam, coms, RP.Ball, BPosHX, BPosHY, BState, [G1; G2], [V1; V2], obstacles, goalSizes, false);
+			ruls(2, :) = penaltyCommandHandler(2, kickOfTeam, coms, RP.Ball, BPosHX, BPosHY, BState, [G1; G2], [V1; V2], obstacles, goalSizes, false);		
+			if checkNormalStartCondition(kickPoint, RP.Ball.z)
+				gameState = 6;
+			end
+		elseif gameState == 6
+			ruls(1, :) = haltCommandHandler(coms);
+			ruls(2, :) = haltCommandHandler(coms);
+		end
 	case directKickCommand
-		[ruls1, ruls2] = directCommandHandler();
+		if gameState == 2 || gameState == 0
+			kickPoint = stableBallFiltering(BPosHX, BPosHY);
+			gameState = 3;
+		elseif gameState == 3
+			kickOfTeam = getKickoffTeamSide(RefCommandForTeam, leftTeamIsBlue);
+			ruls(1, :) = directCommandHandler(1, kickOfTeam, coms, RP.Ball, BPosHX, BPosHY, BState, [G1; G2], [V1; V2], obstacles, goalSizes);
+			ruls(2, :) = directCommandHandler(2, kickOfTeam, coms, RP.Ball, BPosHX, BPosHY, BState, [G1; G2], [V1; V2], obstacles, goalSizes);
+			if checkNormalStartCondition(kickPoint, RP.Ball.z)
+				gameState = 4;
+			end
+		elseif gameState == 4
+			ruls(1, :) = gameModel(1, coms, obstacles, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, 3); 
+			ruls(2, :) = gameModel(2, coms, obstacles, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, 3); 					
+		end
 	case indirectKickCommand
-		[ruls1, ruls2] = indirectCommandHandler();
+		if gameState == 2 || gameState == 0
+			kickPoint = stableBallFiltering(BPosHX, BPosHY);
+			gameState = 3;
+		elseif gameState == 3
+			kickOfTeam = getKickoffTeamSide(RefCommandForTeam, leftTeamIsBlue);
+			ruls(1, :) = directCommandHandler(1, kickOfTeam, coms, RP.Ball, BPosHX, BPosHY, BState, [G1; G2], [V1; V2], obstacles, goalSizes);
+			ruls(2, :) = directCommandHandler(2, kickOfTeam, coms, RP.Ball, BPosHX, BPosHY, BState, [G1; G2], [V1; V2], obstacles, goalSizes);
+			if checkNormalStartCondition(kickPoint, RP.Ball.z)
+				gameState = 4;
+			end
+		elseif gameState == 4
+			ruls(1, :) = gameModel(1, coms, obstacles, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, 3); 
+			ruls(2, :) = gameModel(2, coms, obstacles, RP.Ball, [G1; G2], [V1; V2], field, BState, BPosHX, BPosHY, 3); 					
+		end
 	case ballPlacementCommand
-		[ruls1, ruls2] = ballPlacementCommandHandler();
+		gameState = 2;
+		ruls(1, :) = haltCommandHandler(coms);
+		ruls(2, :) = haltCommandHandler(coms);
 end
 
 copyRulsToRobotsRul(ruls(1, :), ruls(2, :));
-
+prevRefState = RefState;

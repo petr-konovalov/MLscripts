@@ -14,7 +14,7 @@ function ruls = gameModel(sd, coms, obsts, ball, goals, Vs, field, BState, BPosH
     keeperId = size(coms, 2);
     
     if nargin <= 11
-    	goalSizes = [1000, 2000];
+    	goalSizes = [1200, 2400];
     end
     
     ballZone = getBallZone(field, goals(sd, :), Vs(sd, :), goals(3-sd, :), Vs(3-sd, :), goalSizes, ball);
@@ -59,11 +59,11 @@ function ruls = gameActiveStart(sd, coms, obsts, ball, goals, Vs, field, BState,
     %где-то позади становится
     ruls = getEmptyRuls(size(coms, 2));
     oppV = Vs(3 - sd, :);
-    ballAttackDist = 120;
+    ballAttackDist = 100;
     %id = (sd-1)*size(coms,2) + 1; 
     if inHalfStrip(coms(sd, 1).z, ball.z, oppV, 50)
     	%disp('k1');
-        ruls(1) = MoveToConstAcc(coms(sd, 1), ball.z, 0, 120, 10);
+        ruls(1) = MoveToConstAcc(coms(sd, 1), ball.z, 0, 95, 10);
     else
     	%disp('k2');
         ruls(1) = MoveToWithFastBuildPath(coms(sd, 1), ball.z + oppV * 500, 100, obsts); 
@@ -74,7 +74,7 @@ function ruls = gameActiveStart(sd, coms, obsts, ball, goals, Vs, field, BState,
     end
     if r_dist_points(coms(sd, 1).z, ball.z) < ballAttackDist
     	ruls(1).AutoKick = 2;
-    	ruls(1).KickVoltage = 4;
+    	ruls(1).KickVoltage = 3;
     end
     
     %disp(ball.z);
