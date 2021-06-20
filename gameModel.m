@@ -144,7 +144,7 @@ function ruls = gameProc(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX
         %ruls(passiveId) = passiveAttackRole(coms(sd, passiveId), ball, goals(os, :), Vs(os, :), P, obsts([1:oPassiveId-1, oPassiveId+1:size(obsts, 1)], :));
         j = 1;
         for k = [1: activeId-1, activeId+1:size(coms, 2)-1]
-        	ruls(k) = passiveAttackRole(coms(sd, k), ball, goals(os, :), Vs(os, :), P(dis(sd, j), :), obsts);
+        	ruls(k) = passiveAttackRole(coms(sd, k), BState, ball, goals(os, :), Vs(os, :), P(dis(sd, j), :), obsts);
         	j = j + 1;
         end
     elseif bitand(ballZone, 2) == 2
@@ -280,8 +280,16 @@ function res = findRobotOnSector(robots, origin, dir, thresholdAng)
 	end
 end
 
-function rul = passiveAttackRole(agent, ball, oppG, oppV, P, obsts)
-    rul = MoveToWithFastBuildPath(agent, P, 100, obsts);
+function rul = passiveAttackRole(agent, BState, ball, oppG, oppV, P, obsts)
+	catchArea = 1500;
+	if BState.BStand
+    	rul = MoveToWithFastBuildPath(agent, P, 100, obsts);
+    else
+    	proec = ball.z + normir(BState.BSpeed) * dot(agent.z-ball.z, BState.BSpeed);
+    	if norm(proec - agent.z) < catchArea 
+    		rul = MoveToWithFastBuildPath(agent, proec, 30, obsts);
+    	end
+    end
 end
 
 function res = ballInGameZone(ball, field)
