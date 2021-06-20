@@ -288,6 +288,8 @@ function rul = passiveAttackRole(agent, BState, ball, oppG, oppV, P, obsts)
     	proec = ball.z + normir(BState.BSpeed) * dot(agent.z-ball.z, BState.BSpeed);
     	if norm(proec - agent.z) < catchArea 
     		rul = MoveToWithFastBuildPath(agent, proec, 30, obsts);
+    	else
+    		rul = MoveToWithFastBuildPath(agent, P, 100, obsts);
     	end
     end
 end
