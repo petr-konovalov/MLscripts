@@ -20,12 +20,19 @@ function ruls = stopCommandHandler(sd, coms, ball, Gs, Vs, obstacles, goalSizes,
 	ruls(size(coms, 2)) = keeperStopHandler(coms(sd, size(coms, 2)), ball, Gs(sd, :), Vs(sd, :), obstacles, gapedBallDist, defStep, rndStep, normalSpeed);
 end
 
-function rul = attackerStopHandler(agent, ball, Gs, Vs, obstacles, gapedBallDist, goalSizes, defStep, rndStep, normalSpeed)
+function rul = attackerStopHandler(sd, agent, ball, BState, Gs, Vs, obstacles, gapedBallDist, goalSizes, defStep, rndStep, normalSpeed)
+	err = 50;
+	ballArea = 300;
 	rul = Crul(0, 0, 0, 0, 0);
 	rngAng = 2*pi*rand(1, 1);
 	rndDir = rndStep*[cos(rngAng), sin(rngAng)];
 	if norm(agent.z - ball.z) < gapedBallDist
-		rul = MoveToWithFastBuildPath(agent, agent.z+defStep*normir(agent.z-ball.z)+rndDir, 20, obstacles, normalSpeed);
+		if BState.BStand
+			pnt = SegmentCircleIntersect(ball.x, ball.y, Gs(sd, 1)-Vs(sd, 1)*gapedBallDist, Gs(sd, 2)-Vs(sd, 2)*gapedBallDist, ball.x, ball.y, gapedBallDist+err);
+			rul = MoveToWithFastBuildPath(agent, pnt, 20, [obstacles; ball.x ball.y ballArea], normalSpeed);
+		else
+			rul = MoveToWithFastBuildPath(agent, agent.z+defStep*normir(agent.z-ball.z)+rndDir, 20, obstacles, normalSpeed);
+		end
 	elseif ballInGoalZone(Gs(1, :), Vs(1, :), goalSizes, agent.z)
 		rul = MoveToWithFastBuildPath(agent, agent.z+defStep*normir(agent.z-Gs(1, :))+rndDir, 20, obstacles, normalSpeed); 
 	elseif ballInGoalZone(Gs(2, :), Vs(2, :), goalSizes, agent.z)	
