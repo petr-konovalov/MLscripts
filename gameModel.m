@@ -179,7 +179,7 @@ function rul = activeAttackRole(agent, friends, ball, oppCom, oppObst, oppG, opp
     dir = [cos(agent.ang), sin(agent.ang)];
     smallDist = 150;
     ownerDist = 250;
-    ownerAngle = pi/6;
+    ownerAngle = pi/6.2;
     G = oppG - oppV * 400;
     
     if isempty(timeDetermined)
