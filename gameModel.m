@@ -140,7 +140,7 @@ function ruls = gameProc(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX
 	end
     %высчитываем управление
     if ballZone == 1
-        ruls(activeId) = activeAttackRole(coms(sd, activeId), coms(sd, [1:activeId-1, activeId+1:size(coms, 2)-1]), ball, coms(os, :), obsts(lD:rD, :), goals(os, :), Vs(os, :));
+        ruls(activeId) = activeAttackRole(coms(sd, activeId), coms(sd, [1:activeId-1, activeId+1:size(coms, 2)-1]), ball, BState, coms(os, :), obsts(lD:rD, :), goals(os, :), Vs(os, :));
         %ruls(passiveId) = passiveAttackRole(coms(sd, passiveId), ball, goals(os, :), Vs(os, :), P, obsts([1:oPassiveId-1, oPassiveId+1:size(obsts, 1)], :));
         j = 1;
         for k = [1: activeId-1, activeId+1:size(coms, 2)-1]
@@ -171,7 +171,7 @@ function agentsPos = getAgentsPos(agents)
 	end
 end
 
-function rul = activeAttackRole(agent, friends, ball, oppCom, oppObst, oppG, oppV)
+function rul = activeAttackRole(agent, friends, ball, BState, oppCom, oppObst, oppG, oppV)
     persistent timeDetermined;
     persistent wasDetermined;
     passSegLen = 20;
@@ -181,6 +181,9 @@ function rul = activeAttackRole(agent, friends, ball, oppCom, oppObst, oppG, opp
     ownerDist = 250;
     ownerAngle = pi/6.2;
     G = oppG - oppV * 400;
+    catchArea = 1500;
+	tauchArea = 35;
+	ballCatching = true;
     
     if isempty(timeDetermined)
         timeDetermined = 0;
@@ -193,57 +196,73 @@ function rul = activeAttackRole(agent, friends, ball, oppCom, oppObst, oppG, opp
     agent.isBallInside = inRect(ball.z, agent.z, dir, 30, 100);
     %disp('is ball inside');
     %disp(agent.isBallInside);
-    
-    %Если можем хорошо ударить по воротам, то бьём
-    if checkDir(dir, ball, oppObst, G, oppV) && agent.isBallInside
-        %disp('shoot');
-        rul = Crul(10, 0, 1, 0, 0);
-    else
-        [ownerId, own] = getBallOppOwner(ball, oppCom, ownerDist);
-        %Если какой-то робот противника слишком близко приблизился к мячу
-        %то выполняется алгоритм перехвата мяча, иначе выполняются
-        %процедуры по подъезду и прицеливанию для удара по воротам
-        %disp(own && inHalfPlane(oppCom(ownerId).z, agent.z - dir * 200, dir));
-        if own && abs(getAngle(oppCom(ownerId).z-ball.z, dir)) < ownerAngle
-            disp('stealBall');
-           	rul = stealBall(agent, ball.z, oppCom(ownerId), oppObst);
-           	rul.EnableSpinner = true;
-           	rul.SpinnerSpeed = 1000000;
-        else
-            %disp('take aim');
-            if findRobotsOnStrip(getOpenFriends(friends, oppCom, agent), agent.z, dir, 1500, 400) && agent.isBallInside
-                %disp('pass');
-                %Если смотрим на сокомандника и можем ударить, делаем это
-                rul = Crul(10, 0, 0, 0, 1);
-                rul.KickVoltage = 3;
-            elseif r_dist_points(agent.z, ball.z) < ownerDist && inHalfStrip(ball.z, agent.z, dir, 70)
-                %здесь начнутся проблемы когда добавим вратарей
-                [rul, isDetermined] = optDirGoalAttack(agent, ball, oppCom, G, oppV);
-                curTime = cputime();
-                if isDetermined
-                    if wasDetermined
-                        timeDetermined = curTime;
-                        wasDetermined = true;
-                    elseif curTime - timeDetermined > passSegLen
-                        wasDetermined = true;
-                    end
-                else
-                    wasDetermined = false;
-                end
-                if ~wasDetermined
-                    %если ворота не просматриваются, то делаем пас
-                    %сокоманднику верхним ударом
-                    friend = getNearestOpenFriend(friends, oppCom, agent, dir);
-                    rul = attack(agent, ball, friend.z, 2);
-                end
-            else
-                %disp('tuti');
-                rul = MoveToWithFastBuildPath(agent, ball.z, 0, oppObst);
-                rotRul = RotateToLinear(agent, ball.z, 3, 10, 0.1);
-                rul.SpeedR = rotRul.SpeedR;
-            end
-        end
+    if BState.BFast
+    	proec = ball.z + normir(BState.BSpeed) * dot(agent.z-ball.z, BState.BSpeed);
+    	if norm(proec - agent.z) < tauchArea && inHalfPlane(agent.z, ball.z, BState.BSpeed)
+    		rul = RotateToLinear(agent, ball.z, 3, 10, 0.1);
+   		elseif norm(proec - agent.z) < catchArea && inHalfPlane(agent.z, ball.z, BState.BSpeed) && ~pntInZone(proec, getGoalZone(Gs(1, :), Vs(1, :), goalSizes)) && ~pntInZone(proec, getGoalZone(Gs(2, :), Vs(2, :), goalSizes))
+    		rul = MoveToWithFastBuildPath(agent, proec, 30, obsts);
+    	else
+    		ballCatching = false;
+    	end
     end
+    
+    if ballCatching
+		%Если можем хорошо ударить по воротам, то бьём
+		if checkDir(dir, ball, oppObst, G, oppV) && agent.isBallInside
+		    %disp('shoot');
+		    rul = Crul(10, 0, 1, 0, 0);
+		else
+		    [ownerId, own] = getBallOppOwner(ball, oppCom, ownerDist);
+		    %Если какой-то робот противника слишком близко приблизился к мячу
+		    %то выполняется алгоритм перехвата мяча, иначе выполняются
+		    %процедуры по подъезду и прицеливанию для удара по воротам
+		    %disp(own && inHalfPlane(oppCom(ownerId).z, agent.z - dir * 200, dir));
+		    if own && inHalfPlane(oppCom(ownerId).z, agent.z - dir * 200, dir)
+		        disp('stealBall');
+		       	rul = stealBall(agent, ball.z, oppCom(ownerId), oppObst);
+		       	rul.EnableSpinner = true;
+		       	rul.SpinnerSpeed = 1000000;
+		       	if randi(100) > 97
+				   	rul.KickVoltage = 2;
+				   	rul.AutoKick = 1;
+				end
+		    else
+		        %disp('take aim');
+		        if findRobotsOnStrip(getOpenFriends(friends, oppCom, agent), agent.z, dir, 1500, 400) && agent.isBallInside
+		            %disp('pass');
+		            %Если смотрим на сокомандника и можем ударить, делаем это
+		            rul = Crul(10, 0, 0, 0, 1);
+		            rul.KickVoltage = 3;
+		        elseif r_dist_points(agent.z, ball.z) < ownerDist && inHalfStrip(ball.z, agent.z, dir, 70)
+		            %здесь начнутся проблемы когда добавим вратарей
+		            [rul, isDetermined] = optDirGoalAttack(agent, ball, oppCom, G, oppV);
+		            curTime = cputime();
+		            if isDetermined
+		                if wasDetermined
+		                    timeDetermined = curTime;
+		                    wasDetermined = true;
+		                elseif curTime - timeDetermined > passSegLen
+		                    wasDetermined = true;
+		                end
+		            else
+		                wasDetermined = false;
+		            end
+		            if ~wasDetermined
+		                %если ворота не просматриваются, то делаем пас
+		                %сокоманднику верхним ударом
+		                friend = getNearestOpenFriend(friends, oppCom, agent, dir);
+		                rul = attack(agent, ball, friend.z, 2);
+		            end
+		        else
+		            %disp('tuti');
+		            rul = MoveToWithFastBuildPath(agent, ball.z, 0, oppObst);
+		            rotRul = RotateToLinear(agent, ball.z, 3, 10, 0.1);
+		            rul.SpeedR = rotRul.SpeedR;
+		        end
+		    end
+		end
+	end
 end
 
 function res = getNearestOpenFriend(friends, oppCom, agent, dir)
