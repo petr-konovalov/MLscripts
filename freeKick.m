@@ -34,6 +34,9 @@ function ruls = freeKick(com, ball, kickPoint, BPosHX, BPosHY, obstacles, kickTy
 				ruls(attackerId).AutoKick = kickType;
 				ruls(attackerId).KickVoltage = kickVoltage;
 			end
+			if inHalfPlane(attacker.z, ball.z, ball.z - middlePoint)
+				state = 0;
+			end
 	end
 end
 
