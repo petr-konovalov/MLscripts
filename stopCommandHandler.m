@@ -7,7 +7,7 @@ function ruls = stopCommandHandler(sd, coms, ball, Gs, Vs, obstacles, goalSizes,
 		goalSizes = [1000, 2000]; 
 	end
 	if nargin <= 7 
-		gap = 500; 
+		gap = 700; 
 	end
 	if nargin <= 8 
 		normalSpeed = 10; 
