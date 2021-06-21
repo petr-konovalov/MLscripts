@@ -7,7 +7,7 @@ function ruls = freeKick(com, ball, kickPoint, BPosHX, BPosHY, obstacles, kickTy
 	if nargin <= 7
 		kickVoltage = 3;
 	end
-	ballAttackDist = 110;
+	ballAttackDist = 100;
 	robotRotThreshold = 5;
 	ruls = getEmptyRuls(size(com, 2));
 	ball = getFilteredBall(ball, BPosHX, BPosHY);
