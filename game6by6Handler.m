@@ -132,8 +132,8 @@ switch RefState
 			gameState = 3;
 		elseif gameState == 3
 			kickOfTeam = getKickoffTeamSide(RefCommandForTeam, leftTeamIsBlue);
-			ruls(1, :) = directCommandHandler(1, kickOfTeam, coms, RP.Ball, BState, BPosHX, BPosHY, BState, [G1; G2], [V1; V2], obstacles, goalSizes);
-			ruls(2, :) = directCommandHandler(2, kickOfTeam, coms, RP.Ball, BState, BPosHX, BPosHY, BState, [G1; G2], [V1; V2], obstacles, goalSizes);
+			ruls(1, :) = directCommandHandler(1, kickOfTeam, coms, RP.Ball, BPosHX, BPosHY, BState, [G1; G2], [V1; V2], obstacles, goalSizes);
+			ruls(2, :) = directCommandHandler(2, kickOfTeam, coms, RP.Ball, BPosHX, BPosHY, BState, [G1; G2], [V1; V2], obstacles, goalSizes);
 			if checkNormalStartCondition(kickPoint, RP.Ball.z)
 				gameState = 4;
 			end
@@ -147,8 +147,8 @@ switch RefState
 			gameState = 3;
 		elseif gameState == 3
 			kickOfTeam = getKickoffTeamSide(RefCommandForTeam, leftTeamIsBlue);
-			ruls(1, :) = directCommandHandler(1, kickOfTeam, coms, RP.Ball, BState, BPosHX, BPosHY, BState, [G1; G2], [V1; V2], obstacles, goalSizes);
-			ruls(2, :) = directCommandHandler(2, kickOfTeam, coms, RP.Ball, BState, BPosHX, BPosHY, BState, [G1; G2], [V1; V2], obstacles, goalSizes);
+			ruls(1, :) = directCommandHandler(1, kickOfTeam, coms, RP.Ball, BPosHX, BPosHY, BState, [G1; G2], [V1; V2], obstacles, goalSizes);
+			ruls(2, :) = directCommandHandler(2, kickOfTeam, coms, RP.Ball, BPosHX, BPosHY, BState, [G1; G2], [V1; V2], obstacles, goalSizes);
 			if checkNormalStartCondition(kickPoint, RP.Ball.z)
 				gameState = 4;
 			end

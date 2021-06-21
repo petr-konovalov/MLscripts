@@ -1,4 +1,4 @@
-function ruls = directCommandHandler(sd, ks, coms, ball, BState, BPosHX, BPosHY, BState, Gs, Vs, obstacles, goalSizes)
+function ruls = directCommandHandler(sd, ks, coms, ball, BPosHX, BPosHY, BState, Gs, Vs, obstacles, goalSizes)
 	if sd == ks
 		ruls = freeKick(coms(sd, :), ball, getKickPoint(), BPosHX, BPosHY, obstacles);
 	else
