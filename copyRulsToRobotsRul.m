@@ -1,4 +1,4 @@
-function copyRulsToRobotsRul(ruls1, ruls2)
+function copyRulsToRobotsRul(ruls1, ruls2, cId)
 	global RP;
 	global yellowIsActive;
 	global blueIsActive;
@@ -6,9 +6,9 @@ function copyRulsToRobotsRul(ruls1, ruls2)
 	if yellowIsActive
 		for k = 1: 6
 			if leftTeamIsBlue
-				RP.Yellow(k).rul = ruls2(k);
+				RP.Yellow(cId(k)).rul = ruls2(k);
 			else
-				RP.Yellow(k).rul = ruls1(k);
+				RP.Yellow(cId(k)).rul = ruls1(k);
 			end
 		end
 	else
@@ -20,9 +20,9 @@ function copyRulsToRobotsRul(ruls1, ruls2)
 	if blueIsActive
 		for k = 1: 6
 			if leftTeamIsBlue
-				RP.Blue(k).rul = ruls1(k);
+				RP.Blue(cId(k+6)).rul = ruls1(k);
 			else
-				RP.Blue(k).rul = ruls2(k);
+				RP.Blue(cId(k+6)).rul = ruls2(k);
 			end
 		end
 	else

@@ -17,7 +17,7 @@ RP.Ball.z = BPEstim;
 RP.Ball.x = BPEstim(1);
 RP.Ball.y = BPEstim(2);
 
-cId = [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6];
+cId = [5, 2, 3, 4, 1, 6, 5, 2, 3, 4, 1, 6];
 
 if leftTeamIsBlue
 	coms = [RP.Blue(cId(7)), RP.Blue(cId(8)),  RP.Blue(cId(9)), RP.Blue(cId(10)), RP.Blue(cId(11)),  RP.Blue(cId(12)); RP.Yellow(cId(1)), RP.Yellow(cId(2)), RP.Yellow(cId(3)), RP.Yellow(cId(4)), RP.Yellow(cId(5)), RP.Yellow(cId(6))];
@@ -162,5 +162,5 @@ switch RefState
 		ruls(2, :) = haltCommandHandler(coms);
 end
 
-copyRulsToRobotsRul(ruls(1, :), ruls(2, :));
+copyRulsToRobotsRul(ruls(1, :), ruls(2, :), cId);
 prevRefState = RefState;
