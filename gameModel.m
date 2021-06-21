@@ -196,6 +196,7 @@ function rul = activeAttackRole(agent, friends, ball, BState, oppCom, oppObst, o
     agent.isBallInside = inRect(ball.z, agent.z, dir, 30, 100);
     %disp('is ball inside');
     %disp(agent.isBallInside);
+    rul = Crul(0, 0, 0, 0, 0);
     if BState.BFast
     	proec = ball.z + normir(BState.BSpeed) * dot(agent.z-ball.z, BState.BSpeed);
     	if norm(proec - agent.z) < tauchArea && inHalfPlane(agent.z, ball.z, BState.BSpeed)
