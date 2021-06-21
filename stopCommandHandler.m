@@ -1,21 +1,21 @@
-function ruls = stopCommandHandler(sd, coms, ball, Gs, Vs, obstacles, goalSizes, gap, normalSpeed)
+function ruls = stopCommandHandler(sd, coms, ball, BState, Gs, Vs, obstacles, goalSizes, gap, normalSpeed)
 	ruls = getEmptyRuls(size(coms, 2));
 	ballDist = 500;
 	defStep = 500;
 	rndStep = 200;
-	if nargin <= 6 
+	if nargin <= 7
 		goalSizes = [1000, 2000]; 
 	end
-	if nargin <= 7 
+	if nargin <= 8 
 		gap = 700; 
 	end
-	if nargin <= 8 
+	if nargin <= 9 
 		normalSpeed = 10; 
 	end
 	gapedGoalSizes = goalSizes + [1, 2] * gap;
 	gapedBallDist = ballDist + gap;
 	for k = 1: size(coms, 2)-1
-		ruls(k) = attackerStopHandler(coms(sd, k), ball, Gs, Vs, obstacles, gapedBallDist, gapedGoalSizes, defStep, rndStep, normalSpeed);
+		ruls(k) = attackerStopHandler(sd, coms(sd, k), ball, BState, Gs, Vs, obstacles, gapedBallDist, gapedGoalSizes, defStep, rndStep, normalSpeed);
 	end
 	ruls(size(coms, 2)) = keeperStopHandler(coms(sd, size(coms, 2)), ball, Gs(sd, :), Vs(sd, :), obstacles, gapedBallDist, defStep, rndStep, normalSpeed);
 end
