@@ -17,7 +17,7 @@ function pnt = getKickPoint(sd, ball, coms, Gs)
 	minDist = 1000000;
 	pnt = [0, 0];
 	for k = 1: size(coms, 2)
-		curDist = norm(coms(sd, k).z-Gs(3-sd, k))
+		curDist = norm(coms(sd, k).z-Gs(3-sd, :))
 		if curDist < minDist && norm(coms(sd, k).z-ball.z) > ballFiltDist
 			pnt = coms(sd, k).z;
 		end
