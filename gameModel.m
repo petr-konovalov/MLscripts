@@ -140,7 +140,7 @@ function ruls = gameProc(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX
 	end
     %высчитываем управление
     if ballZone == 1
-        ruls(activeId) = activeAttackRole(coms(sd, activeId), coms(sd, [1:activeId-1, activeId+1:size(coms, 2)-1]), ball, BState, coms(os, :), obsts(lD:rD, :), goals(os, :), Vs(os, :));
+        ruls(activeId) = activeAttackRole(coms(sd, activeId), coms(sd, [1:activeId-1, activeId+1:size(coms, 2)-1]), ball, BState, coms(os, :), obsts(lD:rD, :), goals(os, :), Vs(os, :), goals, Vs, goalSizes);
         %ruls(passiveId) = passiveAttackRole(coms(sd, passiveId), ball, goals(os, :), Vs(os, :), P, obsts([1:oPassiveId-1, oPassiveId+1:size(obsts, 1)], :));
         j = 1;
         for k = [1: activeId-1, activeId+1:size(coms, 2)-1]
@@ -171,7 +171,7 @@ function agentsPos = getAgentsPos(agents)
 	end
 end
 
-function rul = activeAttackRole(agent, friends, ball, BState, oppCom, oppObst, oppG, oppV)
+function rul = activeAttackRole(agent, friends, ball, BState, oppCom, oppObst, oppG, oppV, Gs, Vs, goalSizes)
     persistent timeDetermined;
     persistent wasDetermined;
     passSegLen = 20;
