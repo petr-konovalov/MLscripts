@@ -33,6 +33,9 @@ function rul = attackerStopHandler(sd, agent, ball, BState, Gs, Vs, obstacles, g
 				rul = MoveToWithFastBuildPath(agent, agent.z+defStep*normir(agent.z-ball.z)+rndDir, 20, obstacles, normalSpeed);
 			else
 				rul = MoveToWithFastBuildPath(agent, pnt, 20, [obstacles; ball.x ball.y ballArea], normalSpeed);
+				if abs(rul.SpeedX) + abs(rul.SpeedY) == 0
+					rul = MoveToWithFastBuildPath(agent, agent.z+defStep*normir(agent.z-ball.z)+rndDir, 20, obstacles, normalSpeed);
+				end
 			end
 		else
 			rul = MoveToWithFastBuildPath(agent, agent.z+defStep*normir(agent.z-ball.z)+rndDir, 20, obstacles, normalSpeed);
