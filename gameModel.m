@@ -203,9 +203,11 @@ function rul = activeAttackRole(agent, friends, ball, oppCom, oppObst, oppG, opp
         %то выполн€етс€ алгоритм перехвата м€ча, иначе выполн€ютс€
         %процедуры по подъезду и прицеливанию дл€ удара по воротам
         %disp(own && inHalfPlane(oppCom(ownerId).z, agent.z - dir * 200, dir));
-        if own && inHalfPlane(oppCom(ownerId).z, agent.z - dir * 200, dir)
+        if own && inHalfPlane(oppCom(ownerId).z, agent.z, dir)
             disp('stealBall');
            	rul = stealBall(agent, ball.z, oppCom(ownerId), oppObst);
+           	rul.EnableSpinner = true;
+           	rul.SpinnerSpeed = 1000000;
         else
             %disp('take aim');
             if findRobotsOnStrip(getOpenFriends(friends, oppCom, agent), agent.z, dir, 1500, 400) && agent.isBallInside
@@ -286,7 +288,7 @@ function rul = passiveAttackRole(agent, BState, ball, oppG, oppV, P, obsts)
     	rul = MoveToWithFastBuildPath(agent, P, 100, obsts);
     else
     	proec = ball.z + normir(BState.BSpeed) * dot(agent.z-ball.z, BState.BSpeed);
-    	if norm(proec - agent.z) < catchArea 
+    	if norm(proec - agent.z) < catchArea && inHalfPlane(agent.z, ball.z, BState.BSpeed)
     		rul = MoveToWithFastBuildPath(agent, proec, 30, obsts);
     	else
     		rul = MoveToWithFastBuildPath(agent, P, 100, obsts);
