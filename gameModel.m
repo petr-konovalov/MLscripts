@@ -23,7 +23,7 @@ function ruls = gameModel(sd, coms, obsts, ball, goals, Vs, field, BState, BPosH
         case ActiveStartStatus
             ruls = gameActiveStart(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY);
         case PassiveStartStatus
-            ruls = gamePassiveStart(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY, goals, Vs, goalSizes);
+            ruls = gamePassiveStart(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY, goals);
         case GameProcStatus
             ruls = gameProc(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY, ballZone);
         case StopGameStatus
@@ -112,7 +112,7 @@ function ruls = gamePassiveStart(sd, coms, obsts, ball, goals, Vs, field, BState
     end
 end
 
-function ruls = gameProc(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY, ballZone)
+function ruls = gameProc(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY, ballZone, goalSizes)
     persistent dis disLastUpdTime;
     global curTime;
     ruls = getEmptyRuls(size(coms, 2));
@@ -144,7 +144,7 @@ function ruls = gameProc(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX
         %ruls(passiveId) = passiveAttackRole(coms(sd, passiveId), ball, goals(os, :), Vs(os, :), P, obsts([1:oPassiveId-1, oPassiveId+1:size(obsts, 1)], :));
         j = 1;
         for k = [1: activeId-1, activeId+1:size(coms, 2)-1]
-        	ruls(k) = passiveAttackRole(coms(sd, k), BState, ball, goals(os, :), Vs(os, :), P(dis(sd, j), :), obsts);
+        	ruls(k) = passiveAttackRole(coms(sd, k), BState, ball, goals(os, :), Vs(os, :), P(dis(sd, j), :), obsts, goals, Vs, goalSizes);
         	j = j + 1;
         end
     elseif bitand(ballZone, 2) == 2
