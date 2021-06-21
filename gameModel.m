@@ -23,7 +23,7 @@ function ruls = gameModel(sd, coms, obsts, ball, goals, Vs, field, BState, BPosH
         case ActiveStartStatus
             ruls = gameActiveStart(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY);
         case PassiveStartStatus
-            ruls = gamePassiveStart(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY);
+            ruls = gamePassiveStart(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY, goals, Vs, goalSizes);
         case GameProcStatus
             ruls = gameProc(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY, ballZone);
         case StopGameStatus
@@ -283,13 +283,13 @@ function res = findRobotOnSector(robots, origin, dir, thresholdAng)
 	end
 end
 
-function rul = passiveAttackRole(agent, BState, ball, oppG, oppV, P, obsts)
+function rul = passiveAttackRole(agent, BState, ball, oppG, oppV, P, obsts, Gs, Vs, goalSizes)
 	catchArea = 1500;
 	if BState.BStand
     	rul = MoveToWithFastBuildPath(agent, P, 100, obsts);
     else
     	proec = ball.z + normir(BState.BSpeed) * dot(agent.z-ball.z, BState.BSpeed);
-    	if norm(proec - agent.z) < catchArea && inHalfPlane(agent.z, ball.z, BState.BSpeed)
+    	if norm(proec - agent.z) < catchArea && inHalfPlane(agent.z, ball.z, BState.BSpeed) && ~pntInZone(proec, getGoalZone(Gs(1, :), Vs(1, :), goalSizes) && ~pntInZone(proec, getGoalZone(Gs(2, :), Vs(2, :)), goalSizes)
     		rul = MoveToWithFastBuildPath(agent, proec, 30, obsts);
     	else
     		rul = MoveToWithFastBuildPath(agent, P, 100, obsts);
