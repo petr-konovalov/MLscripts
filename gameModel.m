@@ -285,11 +285,14 @@ end
 
 function rul = passiveAttackRole(agent, BState, ball, oppG, oppV, P, obsts, Gs, Vs, goalSizes)
 	catchArea = 1500;
+	tauchArea = 35;
 	if BState.BStand
     	rul = MoveToWithFastBuildPath(agent, P, 100, obsts);
     else
     	proec = ball.z + normir(BState.BSpeed) * dot(agent.z-ball.z, BState.BSpeed);
-    	if norm(proec - agent.z) < catchArea && inHalfPlane(agent.z, ball.z, BState.BSpeed) && ~pntInZone(proec, getGoalZone(Gs(1, :), Vs(1, :), goalSizes) && ~pntInZone(proec, getGoalZone(Gs(2, :), Vs(2, :)), goalSizes)
+    	if norm(proec - agent.z) < tauchArea && inHalfPlane(agent.z, ball.z, BState.BSpeed)
+    		rul = RotateToLinear(agent, ball.z, 3, 10, 0.1);
+    	elseif norm(proec - agent.z) < catchArea && inHalfPlane(agent.z, ball.z, BState.BSpeed) && ~pntInZone(proec, getGoalZone(Gs(1, :), Vs(1, :), goalSizes) && ~pntInZone(proec, getGoalZone(Gs(2, :), Vs(2, :)), goalSizes)
     		rul = MoveToWithFastBuildPath(agent, proec, 30, obsts);
     	else
     		rul = MoveToWithFastBuildPath(agent, P, 100, obsts);
