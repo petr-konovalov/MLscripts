@@ -206,6 +206,8 @@ function rul = activeAttackRole(agent, friends, ball, BState, oppCom, oppObst, o
     	else
     		ballCatching = false;
     	end
+    else
+    	ballCatching = false;
     end
     
     if ~ballCatching
