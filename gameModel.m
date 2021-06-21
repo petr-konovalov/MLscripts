@@ -178,7 +178,8 @@ function rul = activeAttackRole(agent, friends, ball, oppCom, oppObst, oppG, opp
     
     dir = [cos(agent.ang), sin(agent.ang)];
     smallDist = 150;
-    ownerDist = 300;
+    ownerDist = 250;
+    ownerAngle = pi/6;
     G = oppG - oppV * 400;
     
     if isempty(timeDetermined)
@@ -189,7 +190,7 @@ function rul = activeAttackRole(agent, friends, ball, oppCom, oppObst, oppG, opp
         wasDetermined = true;
     end
     
-    agent.isBallInside = inRect(ball.z, agent.z, dir, 30, 120);
+    agent.isBallInside = inRect(ball.z, agent.z, dir, 30, 100);
     %disp('is ball inside');
     %disp(agent.isBallInside);
     
@@ -203,7 +204,7 @@ function rul = activeAttackRole(agent, friends, ball, oppCom, oppObst, oppG, opp
         %то выполн€етс€ алгоритм перехвата м€ча, иначе выполн€ютс€
         %процедуры по подъезду и прицеливанию дл€ удара по воротам
         %disp(own && inHalfPlane(oppCom(ownerId).z, agent.z - dir * 200, dir));
-        if own && inHalfPlane(oppCom(ownerId).z, agent.z, dir)
+        if own && abs(getAngle(oppCom(ownerId).z)) < ownerAngle
             disp('stealBall');
            	rul = stealBall(agent, ball.z, oppCom(ownerId), oppObst);
            	rul.EnableSpinner = true;
