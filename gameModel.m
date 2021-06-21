@@ -23,7 +23,7 @@ function ruls = gameModel(sd, coms, obsts, ball, goals, Vs, field, BState, BPosH
         case ActiveStartStatus
             ruls = gameActiveStart(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY);
         case PassiveStartStatus
-            ruls = gamePassiveStart(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY, goals);
+            ruls = gamePassiveStart(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY);
         case GameProcStatus
             ruls = gameProc(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX, BPosHY, ballZone);
         case StopGameStatus
