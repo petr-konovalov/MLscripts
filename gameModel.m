@@ -204,7 +204,7 @@ function rul = activeAttackRole(agent, friends, ball, oppCom, oppObst, oppG, opp
         %то выполн€етс€ алгоритм перехвата м€ча, иначе выполн€ютс€
         %процедуры по подъезду и прицеливанию дл€ удара по воротам
         %disp(own && inHalfPlane(oppCom(ownerId).z, agent.z - dir * 200, dir));
-        if own && abs(getAngle(oppCom(ownerId).z)) < ownerAngle
+        if own && abs(getAngle(oppCom(ownerId).z-ball.z, dir)) < ownerAngle
             disp('stealBall');
            	rul = stealBall(agent, ball.z, oppCom(ownerId), oppObst);
            	rul.EnableSpinner = true;
