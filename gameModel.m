@@ -207,7 +207,7 @@ function rul = activeAttackRole(agent, friends, ball, BState, oppCom, oppObst, o
     	end
     end
     
-    if ballCatching
+    if ~ballCatching
 		%Если можем хорошо ударить по воротам, то бьём
 		if checkDir(dir, ball, oppObst, G, oppV) && agent.isBallInside
 		    %disp('shoot');
