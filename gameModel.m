@@ -199,11 +199,15 @@ function rul = activeAttackRole(agent, friends, ball, BState, oppCom, oppObst, o
     %disp(agent.isBallInside);
     rul = Crul(0, 0, 0, 0, 0);
     if BState.BFast
-    	proec = ball.z + normir(BState.BSpeed) * dot(agent.z-ball.z, BState.BSpeed);
+    	proec = ball.z + normir(BState.BSpeed) * dot(agent.z-ball.z, normir(BState.BSpeed));
     	if norm(proec - agent.z) < tauchArea && inHalfPlane(agent.z, ball.z, BState.BSpeed)
     		rul = RotateToLinear(agent, ball.z, 3, 10, 0.1);
+			rul.EnableSpinner = true;
+		    rul.SpinnerSpeed = 1000000;
    		elseif norm(proec - agent.z) < catchArea && inHalfPlane(agent.z, ball.z, BState.BSpeed) && ~pntInZone(proec, getGoalZone(Gs(1, :), Vs(1, :), goalSizes)) && ~pntInZone(proec, getGoalZone(Gs(2, :), Vs(2, :), goalSizes))
     		rul = MoveToWithFastBuildPath(agent, proec, 30, obsts);
+			rul.EnableSpinner = true;
+		    rul.SpinnerSpeed = 1000000;
     	else
     		ballCatching = false;
     	end
@@ -320,11 +324,11 @@ function rul = passiveAttackRole(agent, BState, ball, oppG, oppV, P, obsts, Gs, 
 	if BState.BStand
     	rul = MoveToWithFastBuildPath(agent, P, 100, obsts);
     else
-    	proec = ball.z + normir(BState.BSpeed) * dot(agent.z-ball.z, BState.BSpeed);
+    	proec = ball.z + normir(BState.BSpeed) * dot(agent.z-ball.z, normir(BState.BSpeed));
     	if norm(proec - agent.z) < tauchArea && inHalfPlane(agent.z, ball.z, BState.BSpeed)
     		rul = RotateToLinear(agent, ball.z, 3, 10, 0.1);
    		elseif norm(proec - agent.z) < catchArea && inHalfPlane(agent.z, ball.z, BState.BSpeed) && ~pntInZone(proec, getGoalZone(Gs(1, :), Vs(1, :), goalSizes)) && ~pntInZone(proec, getGoalZone(Gs(2, :), Vs(2, :), goalSizes))
-    		rul = MoveToWithFastBuildPath(agent, proec, 30, obsts);
+    		rul = MoveToWithFastBuildPath(agent, proec, 50, obsts);
     	else
     		rul = MoveToWithFastBuildPath(agent, P, 100, obsts);
     	end
