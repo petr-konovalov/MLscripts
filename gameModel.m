@@ -140,7 +140,7 @@ function ruls = gameProc(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX
 	end
     %высчитываем управление
     if ballZone == 1
-        ruls(activeId) = activeAttackRole(coms(sd, activeId), coms(sd, [1:activeId-1, activeId+1:size(coms, 2)-1]), ball, BState, coms(os, :), obsts(lD:rD, :), goals(os, :), Vs(os, :), goals, Vs, goalSizes, obsts);
+        ruls(activeId) = activeAttackRole(sd, coms(sd, activeId), coms(sd, [1:activeId-1, activeId+1:size(coms, 2)-1]), ball, BState, coms(os, :), obsts(lD:rD, :), goals(os, :), Vs(os, :), goals, Vs, goalSizes, obsts);
         %ruls(passiveId) = passiveAttackRole(coms(sd, passiveId), ball, goals(os, :), Vs(os, :), P, obsts([1:oPassiveId-1, oPassiveId+1:size(obsts, 1)], :));
         j = 1;
         for k = [1: activeId-1, activeId+1:size(coms, 2)-1]
@@ -171,7 +171,7 @@ function agentsPos = getAgentsPos(agents)
 	end
 end
 
-function rul = activeAttackRole(agent, friends, ball, BState, oppCom, oppObst, oppG, oppV, Gs, Vs, goalSizes, obsts)
+function rul = activeAttackRole(sd, agent, friends, ball, BState, oppCom, oppObst, oppG, oppV, Gs, Vs, goalSizes, obsts)
     persistent timeDetermined;
     persistent wasDetermined;
     persistent attackGoalFlag;
@@ -187,11 +187,15 @@ function rul = activeAttackRole(agent, friends, ball, BState, oppCom, oppObst, o
 	ballCatching = true;
     
     if isempty(timeDetermined)
-        timeDetermined = 0;
+        timeDetermined = [0, 0];
     end
     
     if isempty(wasDetermined)
-        wasDetermined = true;
+        wasDetermined = [true, true];
+    end
+    
+    if isempty(attackGoalFlag)
+    	attackGoalFlag = [true, true];
     end
     
     agent.isBallInside = inRect(ball.z, agent.z, dir, 30, 100);
@@ -247,22 +251,22 @@ function rul = activeAttackRole(agent, friends, ball, BState, oppCom, oppObst, o
 		            [rul, isDetermined] = optDirGoalAttack(agent, ball, oppCom, G, oppV);
 		            curTime = cputime();
 		            if isDetermined
-		                if wasDetermined
-		                    timeDetermined = curTime;
-		                    wasDetermined = true;
-		                elseif curTime - timeDetermined > passSegLen
-		                    wasDetermined = true;
+		                if wasDetermined(sd)
+		                    timeDetermined(sd) = curTime;
+		                    wasDetermined(sd) = true;
+		                elseif curTime - timeDetermined(sd) > passSegLen
+		                    wasDetermined(sd) = true;
 		                end
 		            else
-		                wasDetermined = false;
-		                attackGoalFlag = randi(100) > 30;
+		                wasDetermined(sd) = false;
+		                attackGoalFlag(sd) = randi(100) > 30;
 		            end
-		            if ~wasDetermined
+		            if ~wasDetermined(sd)
 		                %если ворота не просматриваются, то делаем пас
 		                %сокоманднику верхним ударом
-		                if attackGoalFlag
+		                if attackGoalFlag(sd)
 		                	ortV = [oppV(2), -oppV(1)];
-		                	rul = attack(agent, ball, oppG+oppV(1)*200, 2);
+		                	rul = attack(agent, ball, oppG+oppV(1)*230*(mod(attackGoalFlag(sd), 2)*2-1), 2);
 		                	rul.KickVoltage = 3;
 		                else
 		                	friend = getNearestOpenFriend(friends, oppCom, agent, dir);
