@@ -14,7 +14,7 @@ function rul = MoveToWithFastBuildPath(agent, aimPoint, aimVicinity, obstacles, 
     %minSpeed = 10; 
     %minMovement = 100;
     %coef = 2/750;
-    
+    NormalSpeed = min(NormalSpeed, 70);
     %Исключаем препятствие которое есть сам робот
     ownObst = getOwnObst(agent.z, obstacles);
     %disp([agent.id, ownObst]);

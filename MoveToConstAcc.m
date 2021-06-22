@@ -5,10 +5,10 @@
 
 function [rul] = MoveToConstAcc(agent, aimPoint, goalSpeed, vicinity, maxSpeed, acc)
     if nargin <= 4
-    	maxSpeed = 100;
+    	maxSpeed = 70;
     end
     if nargin <= 5
-    	acc = 1.5;
+    	acc = 1.2;
     end
     function [Speed] = linearSpeedFunction(dist)
         if (dist > vicinity)
