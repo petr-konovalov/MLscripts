@@ -35,6 +35,9 @@ function ruls = gameModel(sd, coms, obsts, ball, goals, Vs, field, BState, BPosH
     	if bitand(ballZone, 2) == 2 && BState.BStand 
     		ruls(keeperId) = attack(coms(sd, keeperId), ball, coms(sd, 1).z, 2);
     		ruls(keeperId).KickVoltage = 3;
+    		if coms(sd, keeperId).x < -4450 || coms(sd, keeperId).x > 4450
+    			ruls(keeperId).SpeedX = 0;
+    		end
     	else
        		ruls(keeperId) = GoalKeeperOnLine(coms(sd, keeperId), goals(sd, :) + Vs(sd, :) * 150, Vs(sd, :), BPosHX, BPosHY, BState.BStand, BState.BSpeed);
        	end

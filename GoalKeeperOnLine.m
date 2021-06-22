@@ -20,7 +20,7 @@ function rul = GoalKeeperOnLine(agent, G, V, BPosHX, BPosHY, ballStanding, ballS
         end
     else
         %rul = MoveToPD(agent, G, 15, 2/750, 0, 50);
-        rul = MoveToConstAcc(agent, G, 0, 40);
+        rul = MoveToConstAcc(agent, G+[0 1]*max(-v, min(v, BPos(2)/3)), 0, 40);
         rotRul = RotateToLinear(agent, BPos, 2, 20, 0.05);
         rul.SpeedR = rotRul.SpeedR;
     end
