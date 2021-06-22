@@ -31,14 +31,14 @@ end
 if isnan(SpeedR)
     SpeedR = 0;
 end
-if (abs(SpeedX) > 100)
-    SpeedX = sign(SpeedX) * 100;
+if (abs(SpeedX) > 70)
+    SpeedX = sign(SpeedX) * 70;
 end
-if (abs(SpeedY) > 100)
-    SpeedY = sign(SpeedY) * 100;
+if (abs(SpeedY) > 70)
+    SpeedY = sign(SpeedY) * 70;
 end
-if (abs(SpeedR) > 100)
-    SpeedY = sign(SpeedR) * 100;
+if (abs(SpeedR) > 70)
+    SpeedY = sign(SpeedR) * 70;
 end
 if (KickVoltage < 0)
     KickVoltage = 0;
