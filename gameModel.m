@@ -174,6 +174,7 @@ end
 function rul = activeAttackRole(agent, friends, ball, BState, oppCom, oppObst, oppG, oppV, Gs, Vs, goalSizes, obsts)
     persistent timeDetermined;
     persistent wasDetermined;
+    persistent attackGoalFlag;
     passSegLen = 20;
     
     dir = [cos(agent.ang), sin(agent.ang)];
@@ -250,12 +251,20 @@ function rul = activeAttackRole(agent, friends, ball, BState, oppCom, oppObst, o
 		                end
 		            else
 		                wasDetermined = false;
+		                attackGoalFlag = randi(100) > 30;
 		            end
 		            if ~wasDetermined
 		                %если ворота не просматриваются, то делаем пас
 		                %сокоманднику верхним ударом
-		                friend = getNearestOpenFriend(friends, oppCom, agent, dir);
-		                rul = attack(agent, ball, friend.z, 2);
+		                if attackGoalFlag
+		                	ortV = [oppV(2), -oppV(1)];
+		                	rul = attack(agent, ball, oppG+oppV(1)*200, 2);
+		                	rul.KickVoltage = 3;
+		                else
+		                	friend = getNearestOpenFriend(friends, oppCom, agent, dir);
+		                	rul = attack(agent, ball, friend.z, 2);
+		                	rul.KickVoltage = 3;
+		               	end
 		            end
 		        else
 		            %disp('tuti');
