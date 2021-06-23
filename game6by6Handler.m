@@ -168,7 +168,7 @@ switch RefState
 		ruls(2, :) = haltCommandHandler(coms);
 end
 disp('---');
-for k = 1:6);
+for k = 1:6;
 	disp([k, ruls(1, k).SpeedX, ruls(1, k).SpeedY]);
 end
 for k = 1:6
