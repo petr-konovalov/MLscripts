@@ -8,7 +8,7 @@ function [rul] = RotateToLinear(agent, aimPoint, minAngularSpeed, coef, eps)
     %function which show linear influence of angle changing to angle speed
     function [angSpeed] = linearAngFunction(angDiff)
         if abs(angDiff) > eps
-            angSpeed = sign(angDiff) * minAngularSpeed + angDiff * coef;
+            angSpeed = (sign(angDiff) * minAngularSpeed + angDiff * coef) * 0.8;
         else
             angSpeed = 0;
         end
