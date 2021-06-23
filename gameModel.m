@@ -36,7 +36,7 @@ function ruls = gameModel(sd, coms, obsts, ball, goals, Vs, field, BState, BPosH
     		ruls(keeperId) = attack(coms(sd, keeperId), ball, coms(sd, 1).z, 2);
     		ruls(keeperId).KickVoltage = 3;
     		if (coms(sd, keeperId).x < -4450 || coms(sd, keeperId).x > 4450) && coms(sd, keeperId).x * ruls(keeperId).SpeedX > 0
-    			ruls(keeperId).SpeedX = 0;
+    			ruls(keeperId).SpeedX = 10;
     		end
     	else
        		ruls(keeperId) = GoalKeeperOnLine(coms(sd, keeperId), goals(sd, :) + Vs(sd, :) * 150, Vs(sd, :), BPosHX, BPosHY, BState.BStand, BState.BSpeed);
