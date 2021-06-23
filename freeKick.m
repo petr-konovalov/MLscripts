@@ -13,14 +13,14 @@ function ruls = freeKick(com, ball, kickPoint, BPosHX, BPosHY, obstacles, kickTy
 	ball = getFilteredBall(ball, BPosHX, BPosHY);
 	attackerId = getAttacker(com, ball);
 	attacker = com(attackerId);
+	disp(attackerId);
 	if isempty(state) || norm(ball.z-attacker.z) > 1000 || curTime - oldTime > 1
 		state = 0;
 	end
 	middlePoint = getMiddlePoint(attacker, ball, kickPoint);
 	switch state
 		case 0
-			%ruls(attackerId) = MoveToWithFastBuildPath(attacker, middlePoint, 50, [obstacles; ball.x ball.y 150], 30);
-			ruls(attackerId) = MoveToConstAcc(attacker, middlePoint, 0, 95, 10);
+			ruls(attackerId) = MoveToWithFastBuildPath(attacker, middlePoint, 50, [obstacles; ball.x ball.y 150], 30);
 			if norm(attacker.z-middlePoint) < 100
 				state = 1;
 			end
