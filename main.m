@@ -124,7 +124,7 @@ end
 
 for k = 1: numel(YellowIDs)
     atackerid = YellowIDs(k);
-    if RP.Yellow(atacekerid).I == 0
+    if RP.Yellow(atackerid).I == 0
     	obstacles(k, 1) = -100500;
     	obstacles(k, 2) = -100500;
     	obstacles(k, 3) = 0;
