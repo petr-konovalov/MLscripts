@@ -107,7 +107,11 @@ eps = 10;
 BCnt = numel(BlueIDs);
 for k = 1: BCnt;
     atackerid = BlueIDs(k);
-    if RP.Blue(atackerid).I ~= 0 && (r_dist_points(RP.Blue(atackerid).z, [obstacles(k, 1), obstacles(k, 2)])/(curTime - oldTime) > epsMove)
+    if RP.Blue(atackerid).I == 0
+    	obstacles(k, 1) = -100500;
+    	obstacles(k, 2) = -100500;
+    	obstacles(k, 3) = 0;
+    elseif RP.Blue(atackerid).I ~= 0 && (r_dist_points(RP.Blue(atackerid).z, [obstacles(k, 1), obstacles(k, 2)])/(curTime - oldTime) > epsMove)
         obstacles(k, 1) = RP.Blue(atackerid).x;
         obstacles(k, 2) = RP.Blue(atackerid).y;
         obstacles(k, 3) = radiusMove;
@@ -120,7 +124,11 @@ end
 
 for k = 1: numel(YellowIDs)
     atackerid = YellowIDs(k);
-    if RP.Yellow(atackerid).I ~= 0 && r_dist_points(RP.Yellow(atackerid).z, [obstacles(k+BCnt, 1), obstacles(k+BCnt, 2)])/(curTime - oldTime) > epsMove
+    if RP.Yellow(atacekerid).I == 0
+    	obstacles(k, 1) = -100500;
+    	obstacles(k, 2) = -100500;
+    	obstacles(k, 3) = 0;
+    elseif RP.Yellow(atackerid).I ~= 0 && r_dist_points(RP.Yellow(atackerid).z, [obstacles(k+BCnt, 1), obstacles(k+BCnt, 2)])/(curTime - oldTime) > epsMove
         obstacles(k + BCnt, 1) = RP.Yellow(atackerid).x;
         obstacles(k + BCnt, 2) = RP.Yellow(atackerid).y;
         obstacles(k + BCnt, 3) = radiusMove;
