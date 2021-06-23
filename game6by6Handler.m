@@ -134,7 +134,7 @@ switch RefState
 			kickOfTeam = getKickoffTeamSide(RefCommandForTeam, leftTeamIsBlue);
 			ruls(1, :) = directCommandHandler(1, kickOfTeam, coms, RP.Ball, BPosHX, BPosHY, BState, [G1; G2], [V1; V2], obstacles, goalSizes);
 			ruls(2, :) = directCommandHandler(2, kickOfTeam, coms, RP.Ball, BPosHX, BPosHY, BState, [G1; G2], [V1; V2], obstacles, goalSizes);
-			disp([ruls(2, 1).SpeedX, ruls(2, 1).SpeedY]);
+			disp([ruls(1, 1).SpeedX, ruls(1, 1).SpeedY]);
 			if checkNormalStartCondition(kickPoint, RP.Ball.z)
 				gameState = 4;
 			end
@@ -162,6 +162,6 @@ switch RefState
 		ruls(1, :) = haltCommandHandler(coms);
 		ruls(2, :) = haltCommandHandler(coms);
 end
-disp([ruls(2, 1).SpeedX, ruls(2, 1).SpeedY]);
+disp([ruls(1, 1).SpeedX, ruls(1, 1).SpeedY]);
 copyRulsToRobotsRul(ruls(1, :), ruls(2, :), cId);
 prevRefState = RefState;
