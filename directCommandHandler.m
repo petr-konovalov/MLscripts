@@ -26,7 +26,7 @@ function pnt = getKickPoint(sd, ball, coms, G, V)
 	end
 	if attackGoalFlag
 		ortV = [V(2), -V(1)];
-		pnt = G + ortV * 230 * mod(attackGoalFlag(sd), 2)*2-1;
+		pnt = G + ortV * 230;
 	else
 		ballFiltDist = 1500;
 		minDist = 1000000;

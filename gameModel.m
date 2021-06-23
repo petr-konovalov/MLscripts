@@ -269,7 +269,7 @@ function rul = activeAttackRole(sd, agent, friends, ball, BState, oppCom, oppObs
 		                %сокоманднику верхним ударом
 		                if attackGoalFlag(sd)
 		                	ortV = [oppV(2), -oppV(1)];
-		                	rul = attack(agent, ball, oppG+oppV(1)*230*(mod(attackGoalFlag(sd), 2)*2-1), 2);
+		                	rul = attack(agent, ball, oppG+oppV(1)*230, 2);
 		                	rul.KickVoltage = 3;
 		                else
 		                	friend = getNearestOpenFriend(friends, oppCom, agent, dir);
