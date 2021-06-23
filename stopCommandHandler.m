@@ -28,7 +28,7 @@ function rul = attackerStopHandler(sd, agent, ball, BState, Gs, Vs, obstacles, g
 	rndDir = rndStep*[cos(rngAng), sin(rngAng)];
 	if norm(agent.z - ball.z) < gapedBallDist
 		if BState.BStand
-			pnt = SegmentCircleIntersect(ball.x, ball.y, Gs(sd, 1), Gs(sd, 2) + Vs(sd, 2) * goalSizes(1), ball.x, ball.y, gapedBallDist+err);
+			pnt = SegmentCircleIntersect(ball.x, ball.y, Gs(sd, 1), Gs(sd, 2), ball.x, ball.y, gapedBallDist+err);
 			if isempty(pnt)
 				rul = MoveToWithFastBuildPath(agent, agent.z+defStep*normir(agent.z-ball.z)+rndDir, 20, obstacles, normalSpeed);
 			else
