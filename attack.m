@@ -25,6 +25,8 @@ function rul = attack(agent, ball, aim, kickType)
             rul = MoveToConstAcc(agent, ball.z, 5, 50, 10, 0.3);
 			rotRul = RotateToLinear(agent, aim, 3, 15, 0);
 			rul.SpeedR = rotRul.SpeedR;
+			rul.EnableSpinner = true;
+		    rul.SpinnerSpeed = 1000000;
         end
     end
     if ~isState3(agent.z, agent.ang, aim, 0.05)
