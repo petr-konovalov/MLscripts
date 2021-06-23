@@ -211,7 +211,7 @@ if curTime - oldTime > 1
 	gameStatus = 0;
 end
 ourCommandIsBlue = true;
-leftTeamIsBlue = false;
+leftTeamIsBlue = true;
 yellowIsActive = true;
 blueIsActive = true;
 %ourTeamIsKick = ourCommandIsBlue && RefCommandForTeam == 1 || ~ourCommandIsBlue && RefCommandForTeam == 2;
