@@ -23,8 +23,8 @@ function pnt = getKickPoint(sd, ball, coms, G, V)
 	if isempty(attackGoalFlag) || curTime - initTime(sd) > 0.5
 		disp('coin');
 		attackGoalFlag(sd) = randi(100) > 30;
-		initTime(sd) = curTime;
 	end
+	initTime(sd) = curTime;
 	if attackGoalFlag
 		ortV = [V(2), -V(1)];
 		pnt = G + ortV * 230;
