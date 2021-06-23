@@ -21,6 +21,7 @@ function pnt = getKickPoint(sd, ball, coms, G, V)
 		initTime = [curTime, curTime];
 	end
 	if isempty(attackGoalFlag) || curTime - initTime(sd) > 0.5
+		disp('coin');
 		attackGoalFlag(sd) = randi(100) > 30;
 		initTime(sd) = curTime;
 	end
