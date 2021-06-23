@@ -163,7 +163,6 @@ function pnts = getPassPoints(G, V, ball)
 	rndPnt = SegmentCircleIntersect(ball.x+dir(1)*100500, ball.y+dir(2)*100500, G(1), G(2), G(1), G(2), 1600);
 	dirr = normir(rndPnt-G);
 	ortDirr = [dirr(2), -dirr(1)];
-	defPnt = 
 	pnts = [
 		G + 7000 * V - ortV * 1500;
 		G + 7000 * V + ortV * 1500;
