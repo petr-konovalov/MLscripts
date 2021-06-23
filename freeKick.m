@@ -20,7 +20,7 @@ function ruls = freeKick(com, ball, kickPoint, BPosHX, BPosHY, obstacles, kickTy
 	switch state
 		case 0
 			%ruls(attackerId) = MoveToWithFastBuildPath(attacker, middlePoint, 50, [obstacles; ball.x ball.y 150], 30);
-			ruls(attackerId) = MoveToConstAcc(MoveToConstAcc(attacker, middlePoint, 0, 95, 10));
+			ruls(attackerId) = MoveToConstAcc(attacker, middlePoint, 0, 95, 10);
 			if norm(attacker.z-middlePoint) < 100
 				state = 1;
 			end
