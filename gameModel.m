@@ -130,7 +130,7 @@ function ruls = gameProc(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX
     height = abs(field(1, 1) - field(2, 1));
     width = abs(field(1, 2) - field(2, 2));
     rV = [Vs(sd, 2), -Vs(sd, 1)];
-    P = getPassPoints(goals(sd, :), Vs(sd, :));
+    P = getPassPoints(goals(sd, :), Vs(sd, :), ball);
 	pAttackers = getAgentsPos(coms(sd, [1:activeId-1, activeId+1:size(coms, 2)-1]));
 	%disp(activeId);
 	if isempty(dis)
