@@ -161,7 +161,6 @@ switch RefState
 		ruls(1, :) = haltCommandHandler(coms);
 		ruls(2, :) = haltCommandHandler(coms);
 end
-disp([ruls(sd, 4).SpeedX, ruls(sd, 4).SpeedY]);
+
 copyRulsToRobotsRul(ruls(1, :), ruls(2, :), cId);
-disp([RP.Blue(4).rul.SpeedX, RP.Blue(4).rul.SpeedY]);
 prevRefState = RefState;
