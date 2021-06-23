@@ -216,12 +216,12 @@ yellowIsActive = true;
 blueIsActive = true;
 %ourTeamIsKick = ourCommandIsBlue && RefCommandForTeam == 1 || ~ourCommandIsBlue && RefCommandForTeam == 2;
 for k = 1: 6
-	if ~RP.Blue(k).I
+	if RP.Blue(k).I == 0
 		RP.Blue(k).x = -100500;
 		RP.Blue(k).y = -100500;
 		Rp.Blue(k).z = [-100500, -100500];
 	end
-	if ~RP.Yellow(k).I
+	if RP.Yellow(k).I == 0
 		RP.Yellow(k).x = -100500;
 		RP.Yellow(k).y = -100500;
 		Rp.Yellow(k).z = [-100500, -100500];
