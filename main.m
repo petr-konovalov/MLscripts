@@ -207,6 +207,18 @@ leftTeamIsBlue = false;
 yellowIsActive = true;
 blueIsActive = true;
 %ourTeamIsKick = ourCommandIsBlue && RefCommandForTeam == 1 || ~ourCommandIsBlue && RefCommandForTeam == 2;
+for k = 1: 6
+	if ~RP.Blue(k).I
+		RP.Blue(k).x = -100500;
+		RP.Blue(k).y = -100500;
+		Rp.Blue(k).z = [-100500, -100500];
+	end
+	if ~RP.Yellow(k).I
+		RP.Yellow(k).x = -100500;
+		RP.Yellow(k).y = -100500;
+		Rp.Yellow(k).z = [-100500, -100500];
+	end
+end
 disp([RefState, RefPartOfFieldLeft, RefCommandForTeam]);
 %RP.Blue(1).rul = attack(RP.Blue(1), RP.Ball, [-6000, 0]);
 
