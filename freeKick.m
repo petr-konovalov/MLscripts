@@ -13,7 +13,6 @@ function ruls = freeKick(com, ball, kickPoint, BPosHX, BPosHY, obstacles, kickTy
 	ball = getFilteredBall(ball, BPosHX, BPosHY);
 	attackerId = getAttacker(com, ball);
 	attacker = com(attackerId);
-	disp(attacker.id);
 	if isempty(state) || norm(ball.z-attacker.z) > 1000 || curTime - oldTime > 1
 		state = 0;
 	end
