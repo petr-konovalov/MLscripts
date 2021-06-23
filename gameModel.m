@@ -157,13 +157,20 @@ function ruls = gameProc(sd, coms, obsts, ball, goals, Vs, field, BState, BPosHX
     end
 end
 
-function pnts = getPassPoints(G, V)
+function pnts = getPassPoints(G, V, ball)
 	ortV = [V(2), -V(1)];
+	dir = normir(ball.z - G);
+	rndPnt = SegmentCircleIntersect(ball.x+dir(1)*100500, ball.y+dir(2)*100500, G(1), G(2), G(1), G(2), 1600);
+	dirr = normir(rndPnt-G);
+	ortDirr = [dirr(2), -dirr(1)];
+	defPnt = 
 	pnts = [
 		G + 7000 * V - ortV * 1500;
 		G + 7000 * V + ortV * 1500;
-		G + 2000 * V - ortV * 300;
-		G + 2000 * V + ortV * 300
+		%G + 2000 * V - ortV * 300;
+		%G + 2000 * V + ortV * 300
+		rndPnt + ortDirr * 100;
+		rndPnt - ortDirr * 100
 	];
 end
 
