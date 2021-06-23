@@ -164,7 +164,7 @@ function pnts = getPassPoints(G, V, ball)
 	dirr = normir(rndPnt-G);
 	ortDirr = [dirr(2), -dirr(1)];
 	pnts = [
-		G + 7000 * V - ortV * 1500;
+		G + 8000 * V - ortV * 1300;
 		G + 7000 * V + ortV * 1500;
 		%G + 2000 * V - ortV * 300;
 		%G + 2000 * V + ortV * 300
